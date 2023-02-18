@@ -22,7 +22,7 @@ object DatabaseFactory {
 
     fun initInFile() {
 
-        val url = "jdbc:sqlite:./build/data.db"
+        val url = "jdbc:sqlite:/Users/louisgautier/Desktop/test/data.db"
         init(url)
     }
 
