@@ -1,7 +1,7 @@
 package com.example.model
 
 data class ShowExternalId(
-    val dbId: Int,
+    val id: Long,
     val showId: ShowID,
     val tmdbId: Long?,
     val imdbId: String?,

@@ -2,7 +2,12 @@ package com.example.model
 
 import kotlinx.datetime.LocalDate
 
-typealias ShowID = Int
+typealias ShowID = Long
+typealias SeasonID = Long
+typealias EpisodeID = Long
+typealias TMDBShowId = Long
+typealias TMDBSeasonId = Long
+typealias TMDBEpisodeId = Long
 
 data class Show(
     val id: ShowID,
@@ -16,56 +21,27 @@ data class Show(
     val status: String,
     val averageRuntime: Double,
     val overview: String,
+    val numberOfSeasons: Int,
+    val numberOfEpisodes: Int
 )
 
 
 data class Episode(
-    val id: Int,
-    val seriesId: Int,
+    val id: EpisodeID,
     val overview: String,
-    val runTime: Int,
-    val image: String,
+    val runtime: Int,
+    val thumbnail: String,
     val number: Int,
-    val seasonNumber: Int,
     val name: String,
     val aired: LocalDate,
-    val path: String
+    val path: String,
+    val seasonNumber: Int,
 )
-
-data class Characters(
-    val id: String,
-    val name: String,
-    val peopleId: Int,
-    val showId: Int,
-    val image: String,
-    val url: String,
-    val personName: String,
-    val personImgURL: String,
-    val sort: Int,
-)
-
-enum class ShowSourceName(code: String) {
-    IMDB("IMDB"),
-    TMDB("TheMovieDB.com"),
-    EIDR("EIDR"),
-    TVMAZE("TV Maze"),
-    OTHER("other"),
-    TVDB("")
-}
 
 data class Season(
-    val id: Long,
-    val showId: Long,
+    val id: SeasonID,
     val number: Int,
     val poster: String,
-)
-
-data class Genre(
-    val id: String,
-    val name: String
-)
-
-data class Tag(
-    val id: String,
-    val name: String,
+    val airDate: LocalDate,
+    val overview: String
 )

@@ -1,5 +1,6 @@
 package com.example.remote.tmdb.model
 
+import com.example.model.TMDBShowId
 import com.example.sync.DataValidation
 import com.example.sync.DataValidationValue
 import com.example.sync.Priority
@@ -28,7 +29,7 @@ data class TMDBShow(
     @SerialName("homepage")
     val homepage: String,
     @SerialName("id")
-    val id: Long,
+    val tmdbId: TMDBShowId,
     @SerialName("in_production")
     val inProduction: Boolean,
     @SerialName("languages")
@@ -36,11 +37,11 @@ data class TMDBShow(
     @SerialName("last_air_date")
     val lastAirDate: LocalDate,
     @SerialName("last_episode_to_air")
-    val lastEpisodeToAir: LastEpisodeToAir,
+    val lastEpisodeToAir: TMDBEpisode,
     @SerialName("name")
     val name: String,
     @SerialName("next_episode_to_air")
-    val nextEpisodeToAir: LastEpisodeToAir?,
+    val nextEpisodeToAir: TMDBEpisode?,
     @SerialName("networks")
     val networks: List<Network>,
     @SerialName("number_of_episodes")
@@ -68,7 +69,7 @@ data class TMDBShow(
     @SerialName("production_countries")
     val productionCountries: List<ProductionCountry>,
     @SerialName("seasons")
-    val seasons: List<TMSeason>,
+    val seasons: List<TMDBSeason>,
     @SerialName("spoken_languages")
     val spokenLanguages: List<SpokenLanguage>,
     @SerialName("status")
@@ -81,7 +82,9 @@ data class TMDBShow(
     val voteAverage: Double,
     @SerialName("vote_count")
     val voteCount: Long
-)
+) {
+    val realSeasons = seasons.filter { it.seasonNumber > 0 }
+}
 
 @Serializable
 data class CreatedBy(
@@ -106,30 +109,6 @@ data class TMDBGenre(
 )
 
 @Serializable
-data class LastEpisodeToAir(
-    @SerialName("air_date")
-    val airDate: LocalDate,
-    @SerialName("episode_number")
-    val episodeNumber: Long,
-    @SerialName("id")
-    val id: Long,
-    @SerialName("name")
-    val name: String,
-    @SerialName("overview")
-    val overview: String,
-    @SerialName("production_code")
-    val productionCode: String,
-    @SerialName("season_number")
-    val seasonNumber: Long,
-    @SerialName("still_path")
-    val stillPath: String?,
-    @SerialName("vote_average")
-    val voteAverage: Double,
-    @SerialName("vote_count")
-    val voteCount: Long
-)
-
-@Serializable
 data class Network(
     @SerialName("name")
     val name: String,
@@ -150,7 +129,7 @@ data class ProductionCountry(
 )
 
 @Serializable
-data class TMSeason(
+data class TMDBSeason(
     @SerialName("air_date")
     val airDate: LocalDate?,
     @SerialName("episode_count")

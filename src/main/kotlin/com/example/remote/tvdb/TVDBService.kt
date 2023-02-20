@@ -1,7 +1,7 @@
 package com.example.remote.tvdb
 
+import com.example.database.TokenRepository
 import com.example.model.Token
-import com.example.local.TokenRepository
 import com.example.remote.tvdb.model.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.request.*

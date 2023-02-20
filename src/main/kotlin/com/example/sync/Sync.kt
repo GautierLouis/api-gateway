@@ -1,9 +1,9 @@
 package com.example.sync
 
-import com.example.local.ShowRepository
+import com.example.database.ShowRepository
 import com.example.model.VideoFile
 import com.example.remote.tmdb.TMDBService
-import com.example.remote.tmdb.model.LastEpisodeToAir
+import com.example.remote.tmdb.model.TMDBEpisode
 import com.example.remote.tmdb.model.TMDBShow
 import com.example.utils.next
 import kotlinx.datetime.LocalDate
@@ -19,7 +19,7 @@ class Sync : KoinComponent {
 
     suspend fun triggerSync(file: VideoFile) {
 
-        val localDbId = repository.searchShow(file.showName)
+        val localDbId = repository.findShow(file.showName)
         if (localDbId == null) {
             insertNewShow(file)
         }
@@ -28,13 +28,15 @@ class Sync : KoinComponent {
 
     }
 
-    private suspend fun insertNewShow(file: VideoFile) {
-        service.search(file.showName) // Search corresponding new show
-            .next { service.getShow(it.id) } // Get new show (if any)
-            .next { dataMapper.checkDataValidity(it) } // TODO Make sure we have all required data
-            .next { repository.insertShow(it, file) } // Inset Show in database
-            .next { service.getExternalId(it.tmdbId!!) } // Fetch external IDs
+    private suspend fun insertNewShow(videoFile: VideoFile) {
+        service.searchSingle(videoFile.showName) // Search corresponding new show
+            .next { service.getShowExternalId(it.id) } // Fetch external IDs
             .next { repository.insertExternalIds(it) } // Inset external IDs
+            .next { service.getShow(it.tmdbId!!) } // Get new show (if any)
+//            .next { dataMapper.checkDataValidity(it) } // TODO Make sure we have all required data
+            .next { repository.insertShow(it, videoFile) } // Inset Show in database
+            .next { service.getAllSeasonsAndEpisodes(it) }
+            .next { repository.insertEpisodes(it, videoFile.file) }
 
     }
 }
@@ -48,21 +50,24 @@ val mock = TMDBShow(
     firstAirDate = mockLocalDate,
     genres = emptyList(),
     homepage = "",
-    id = 0L,
+    tmdbId = 0L,
     inProduction = false,
     languages = emptyList(),
     lastAirDate = mockLocalDate,
-    lastEpisodeToAir = LastEpisodeToAir(
+    lastEpisodeToAir = TMDBEpisode(
         airDate = mockLocalDate,
-        episodeNumber = 0L,
+        episodeNumber = 0,
         id = 0L,
         name = "",
         overview = "",
         productionCode = "",
-        seasonNumber = 0L,
+        seasonNumber = 0,
         stillPath = null,
         voteAverage = 0.0,
-        voteCount = 0L
+        voteCount = 0,
+        runtime = 0,
+        order = 0,
+        tmdbId = 0L
     ),
     name = "",
     nextEpisodeToAir = null,

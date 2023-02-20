@@ -1,10 +1,10 @@
 package com.example.plugins
 
+import com.example.database.ShowDao
+import com.example.database.ShowRepository
+import com.example.database.TokenDao
+import com.example.database.TokenRepository
 import com.example.file.FileWatcher
-import com.example.local.ShowDao
-import com.example.local.ShowRepository
-import com.example.local.TokenDao
-import com.example.local.TokenRepository
 import com.example.plugins.SecretsEnv.TMDB_TOKEN
 import com.example.plugins.SecretsEnv.TVDB_KEY
 import com.example.plugins.SecretsEnv.TVDB_PIN

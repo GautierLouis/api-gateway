@@ -1,12 +1,9 @@
 package com.example.plugins
 
+import com.example.database.ShowRepository
+import com.example.file.FileWatcher
 import com.example.remote.tmdb.TMDBService
 import com.example.remote.tvdb.TVDBService
-import com.example.file.FileWatcher
-import com.example.local.ShowRepository
-import com.example.model.VideoFile
-import com.example.sync.mock
-import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*

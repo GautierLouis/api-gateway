@@ -1,15 +1,9 @@
 package com.example
 
-import com.example.local.DatabaseFactory
-import com.example.model.VideoFile
+import com.example.database.DatabaseFactory
 import com.example.plugins.*
-import com.example.sync.DataMapper
-import com.example.sync.Sync
-import com.example.sync.mock
 import io.ktor.server.application.*
-import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import org.apache.http.util.Args
 
 
 //fun main() {

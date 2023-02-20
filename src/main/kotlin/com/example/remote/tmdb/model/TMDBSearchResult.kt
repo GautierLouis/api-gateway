@@ -1,5 +1,6 @@
 package com.example.remote.tmdb.model
 
+import com.example.model.TMDBShowId
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -15,7 +16,7 @@ data class TMDBSearchResult(
 data class TMDBSearchTV(
     @SerialName("poster_path") val posterPath: String?,
     @SerialName("popularity") val popularity: Double,
-    @SerialName("id") val id: Int,
+    @SerialName("id") val id: TMDBShowId,
     @SerialName("backdrop_path") val backdropPath: String?,
     @SerialName("vote_average") val voteAverage: Double,
     @SerialName("overview") val overview: String,

@@ -1,11 +1,11 @@
-package com.example.local.entity
+package com.example.database.entity
 
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.date
 
 object ShowEntity : Table("show") {
     // Identifier
-    val dbId = integer("db_id").autoIncrement()
+    val dbId = long("db_id").autoIncrement()
     override val primaryKey = PrimaryKey(dbId)
 
     // Data from API
@@ -18,7 +18,9 @@ object ShowEntity : Table("show") {
     val originalLanguage = varchar("original_language", 4)
     val status = varchar128("status")
     val averageRuntime = double("average_runtime")
-    val overview = text("overvieew")
+    val overview = text("overview")
+    val numberOfSeason = integer("number°of_seasons")
+    val numberOfEpisodes = integer("number_of_episodes")
 
     // Local info
     val path = text("path")

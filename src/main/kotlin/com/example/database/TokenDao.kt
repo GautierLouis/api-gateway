@@ -1,9 +1,12 @@
-package com.example.local
+package com.example.database
 
+import com.example.database.entity.TokenEntity
 import com.example.model.Token
-import com.example.local.entity.TokenEntity
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 
 class TokenRepository : TokenDao {
     private fun resultRowToToken(row: ResultRow) = Token(
