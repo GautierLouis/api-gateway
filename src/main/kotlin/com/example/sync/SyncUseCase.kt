@@ -1,6 +1,9 @@
 package com.example.sync
 
 import com.example.database.TMDBRepository
+import com.example.model.EpisodeID
+import com.example.model.SeasonID
+import com.example.model.ShowID
 import com.example.model.VideoFile
 import com.example.remote.tmdb.model.TMDBEpisode
 import com.example.remote.tmdb.model.TMDBShow
@@ -8,32 +11,47 @@ import com.example.usecases.GetCompleteShowUseCase
 import com.example.usecases.SearchShowUseCase
 import com.example.utils.next
 import kotlinx.datetime.LocalDate
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
 
-class Sync : KoinComponent {
+class SyncUseCase(
+    private val repository: TMDBRepository,
+    private val searchShowUseCase: SearchShowUseCase,
+    private val getCompleteShowUseCase: GetCompleteShowUseCase
+) {
+//    private val dataMapper by inject<DataMapper>()
 
-    private val repository by inject<TMDBRepository>()
-    private val dataMapper by inject<DataMapper>()
-
-    private val searchShowUseCase by inject<SearchShowUseCase>()
-    private val getShowUseCase by inject<GetCompleteShowUseCase>()
-
-    suspend fun triggerSync(file: VideoFile) {
-
-        val localDbId = repository.findShow(file.showName)
-        if (localDbId == null) {
+    suspend fun execute(file: VideoFile) {
+        val showId: ShowID? = repository.findShow(file.showName)
+        if (showId == null) {
             insertNewShow(file)
+        } else {
+            val seasonId: SeasonID? = repository.findSeason(showId, file.seasonNumber)
+            if (seasonId == null) {
+                insertNewSeason(showId, file)
+            } else {
+                val episodeId: EpisodeID? = repository.findEpisode(seasonId, file.seasonNumber)
+                if (episodeId == null) {
+                    insertNewEpisode(seasonId, file)
+                } else {
+                    // TODO What do we do ? Update file path ? Show duplicate ? Nothing
+                }
+            }
         }
-
-        // TODO Search Season then Episode
-
     }
+
 
     private suspend fun insertNewShow(videoFile: VideoFile) {
         searchShowUseCase.execute(videoFile.showName)
-            .next { getShowUseCase.execute(it.id, videoFile) }
+//            .next { /* TODO Check Data validity */ }
+            .next { getCompleteShowUseCase.execute(it.id, videoFile) }
+    }
+
+    private suspend fun insertNewSeason(showID: ShowID, videoFile: VideoFile) {
+
+    }
+
+    private suspend fun insertNewEpisode(seasonID: SeasonID, videoFile: VideoFile) {
+
     }
 }
 

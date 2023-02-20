@@ -1,6 +1,6 @@
 package com.example.file
 
-import com.example.sync.Sync
+import com.example.sync.SyncUseCase
 import com.example.utils.isVideoFile
 import dev.vishna.watchservice.KWatchChannel
 import dev.vishna.watchservice.KWatchEvent
@@ -17,15 +17,17 @@ import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import kotlin.coroutines.CoroutineContext
 
-class FileWatcher(override val coroutineContext: CoroutineContext) : CoroutineScope {
+class FileWatcher(
+    override val coroutineContext: CoroutineContext,
+    private val syncUseCase: SyncUseCase
+) : CoroutineScope {
 
-    private val dir = File("/Users/louisgautier/Desktop/TEst")
+    private val dir = File("/Users/louisgautier/Desktop/TEst") // TODO Must be configurable
     private val watchChannel = dir.asWatchChannel(KWatchChannel.Mode.Recursive)
     private val patternMatcher = PatternMatcher()
-    private val sync = Sync()
 
     fun startWatching() {
-        launch {
+        launch(Dispatchers.IO) {
             watchChannel.consumeEach { kWatchEvent: KWatchEvent ->
                 val file = kWatchEvent.file
                 if (file.isVideoFile() && kWatchEvent.kind == KWatchEvent.Kind.Created) {
@@ -35,6 +37,7 @@ class FileWatcher(override val coroutineContext: CoroutineContext) : CoroutineSc
         }
     }
 
+    // Scan all files
     fun scan() {
         launch(Dispatchers.IO) {
             Files.walkFileTree(dir.toPath(), object : SimpleFileVisitor<Path>() {
@@ -42,8 +45,7 @@ class FileWatcher(override val coroutineContext: CoroutineContext) : CoroutineSc
                     val file = subPath.toFile()
                     if (file.isVideoFile()) {
                         launch(Dispatchers.IO) {
-                            val videoFile = patternMatcher.clean(file)
-                            sync.triggerSync(videoFile)
+                            syncFile(file)
                         }
                     }
                     return FileVisitResult.CONTINUE
@@ -54,7 +56,7 @@ class FileWatcher(override val coroutineContext: CoroutineContext) : CoroutineSc
 
     private suspend fun syncFile(file: File) {
         val videoFile = patternMatcher.clean(file)
-        sync.triggerSync(videoFile)
+        syncUseCase.execute(videoFile)
     }
 }
 

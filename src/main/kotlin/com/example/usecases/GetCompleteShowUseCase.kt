@@ -1,6 +1,7 @@
 package com.example.usecases
 
 import com.example.database.TMDBRepository
+import com.example.model.Show
 import com.example.model.TMDBShowId
 import com.example.model.VideoFile
 import com.example.remote.tmdb.TMDBService
@@ -16,7 +17,7 @@ class GetCompleteShowUseCase(
     private val getEpisodesBatchUseCase: GetEpisodesBatchUseCase
 ) {
 
-    suspend fun execute(id: TMDBShowId, videoFile: VideoFile): Result<Unit> {
+    suspend fun execute(id: TMDBShowId, videoFile: VideoFile): Result<Show> {
         return try {
             val show = service.getShow(id).getOrThrow()
             val externalIds = service.getShowExternalId(id).getOrThrow()
@@ -26,11 +27,20 @@ class GetCompleteShowUseCase(
 
             val episodes = getEpisodes(episodeGroup, show).getOrThrow()
 
-            repository.insertShow(show, videoFile)
-            repository.insertExternalIds(externalIds)
-            repository.insertEpisodes(episodes, videoFile)
+            val newShow = repository.insertShow(show, videoFile)
+            val newIds = repository.insertExternalIds(externalIds)
+            val newEpisodes = repository.insertEpisodes(episodes, videoFile)
 
-            Result.success(Unit) // Should I return something ?
+
+            return if (newShow.isSuccess && newIds.isSuccess && newEpisodes.isSuccess) {
+                newShow
+            } else Result.failure(
+                Exception(
+                    newShow.exceptionOrNull() ?: newIds.exceptionOrNull() ?: newEpisodes.exceptionOrNull() ?: Exception(
+                        "Unknown Exception"
+                    )
+                )
+            )
 
         } catch (e: Exception) {
             Result.failure(e)
