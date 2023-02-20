@@ -16,12 +16,11 @@ class TMDBRepository : MDBRepositoryInteraction {
     override suspend fun findShow(cleanName: String): Long? = query {
         ShowDAO.find(ShowEntity.findBy eq cleanName)
             .singleOrNull()
-            ?.id
-            ?.value
+            ?.id?.value
     }
 
     override suspend fun insertShow(tmdbShow: TMDBShow, videoFile: VideoFile): Result<Show> = query {
-        val a = ShowDAO.new {
+        val entity = ShowDAO.new {
             name = tmdbShow.name
             firstAired = tmdbShow.firstAirDate
             lastAired = tmdbShow.lastAirDate
@@ -40,7 +39,7 @@ class TMDBRepository : MDBRepositoryInteraction {
 
         ShowExternalIdsDAO.new {
             tmdbId = tmdbShow.tmdbId
-            this.show = a
+            this.show = entity
         }
 
         tmdbShow.realSeasons.map {
@@ -49,18 +48,18 @@ class TMDBRepository : MDBRepositoryInteraction {
                 poster = it.posterPath ?: ""
                 airDate = it.airDate ?: LocalDate.fromEpochDays(0)
                 overview = it.overview
-                show = a
+                show = entity
             }
         }
 
-        return@query Result.success(a.toModel())
+        return@query Result.success(entity.toModel())
 
     }
 
     override suspend fun insertExternalIds(ids: TMDBShowExternalIds) = query {
         val clause = ShowExternalIdsEntity.tmdbId eq ids.tmdbId
 
-        val a = ShowExternalIdsDAO.find(clause).singleOrNull()
+        val entity = ShowExternalIdsDAO.find(clause).singleOrNull()
             ?.apply {
                 tvdbId = ids.tvdbId
                 tvrageId = ids.tvrageId
@@ -71,7 +70,7 @@ class TMDBRepository : MDBRepositoryInteraction {
                 instagramId = ids.instagramId
             } ?: return@query Result.failure(Exception("Unable to update external ids for ${ids.tmdbId}"))
 
-        Result.success(a.toModel())
+        Result.success(entity.toModel())
     }
 
     override suspend fun insertEpisodes(
