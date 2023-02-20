@@ -46,10 +46,10 @@ data class TMDBShow(
     val networks: List<Network>,
     @SerialName("number_of_episodes")
     @field:DataValidation(NUMBER_OF_EPISODE, DataValidationValue.GREATER_THAN_ZERO, Priority.HIGH)
-    val numberOfEpisodes: Long,
+    val numberOfEpisodes: Int,
     @SerialName("number_of_seasons")
     @field:DataValidation(NUMBER_OF_SEASON, DataValidationValue.GREATER_THAN_ZERO, Priority.HIGH)
-    val numberOfSeasons: Long,
+    val numberOfSeasons: Int,
     @SerialName("origin_country")
     val originCountry: List<String>,
     @SerialName("original_language")

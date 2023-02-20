@@ -98,6 +98,7 @@ class ShowRepository : ShowDao {
             it[path] = videoFile.file.path
             it[findBy] = videoFile.showName
             it[numberOfSeason] = show.realSeasons.count()
+            it[numberOfEpisodes] = show.numberOfEpisodes
         } ?: return@query Result.failure(Exception("Unable to store show ${show.tmdbId}"))
 
         ShowExternalIdsEntity.update(
@@ -139,13 +140,6 @@ class ShowRepository : ShowDao {
             .singleOrNull()?.let(::resultRowToShowID)
             ?: return@query Result.failure(Exception(""))
 
-        ShowEntity.update(
-            where = { ShowEntity.dbId eq externalIds.showId },
-            body = {
-                it[ShowEntity.numberOfEpisodes] = episodes.count()
-            }
-        )
-
         val seasons = Join(
             SeasonsEntity, ShowSeasonReference,
             onColumn = SeasonsEntity.dbId,
@@ -160,6 +154,17 @@ class ShowRepository : ShowDao {
                 this[ShowSeasonReference.seasonId] = season.id
                 this[ShowSeasonReference.episodeId] = it.id
             }
+        }
+
+        val relations = seasons.map { season ->
+            val episodesInSeason = entities.filter { it.seasonNumber == season.number }
+            episodesInSeason.map { Triple(externalIds.showId, season.id, it.id) }
+        }.flatten()
+
+        ShowSeasonReference.batchInsert(relations) {
+            this[ShowSeasonReference.showId] = it.first
+            this[ShowSeasonReference.seasonId] = it.second
+            this[ShowSeasonReference.episodeId] = it.third
         }
 
         Result.success(true)
