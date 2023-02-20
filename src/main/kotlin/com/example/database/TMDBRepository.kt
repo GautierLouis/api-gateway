@@ -38,12 +38,12 @@ class TMDBRepository : MDBRepositoryInteraction {
             numberOfEpisodes = tmdbShow.numberOfEpisodes
         }
 
-        val b = ShowExternalIdsDAO.new {
+        ShowExternalIdsDAO.new {
             tmdbId = tmdbShow.tmdbId
             this.show = a
         }
 
-        val cs = tmdbShow.realSeasons.map {
+        tmdbShow.realSeasons.map {
             SeasonsDAO.new {
                 number = it.seasonNumber
                 poster = it.posterPath ?: ""
