@@ -1,7 +1,6 @@
 package com.example.sync
 
 import com.example.database.TMDBRepository
-import com.example.model.EpisodeID
 import com.example.model.SeasonID
 import com.example.model.ShowID
 import com.example.model.VideoFile
@@ -21,22 +20,13 @@ class SyncUseCase(
 //    private val dataMapper by inject<DataMapper>()
 
     suspend fun execute(file: VideoFile) {
-        val showId: ShowID? = repository.findShow(file.showName)
-        if (showId == null) {
-            insertNewShow(file)
-        } else {
-            val seasonId: SeasonID? = repository.findSeason(showId, file.seasonNumber)
-            if (seasonId == null) {
-                insertNewSeason(showId, file)
-            } else {
-                val episodeId: EpisodeID? = repository.findEpisode(seasonId, file.seasonNumber)
-                if (episodeId == null) {
-                    insertNewEpisode(seasonId, file)
-                } else {
+        repository.findShow(file.showName)?.let { showId ->
+            repository.findSeason(showId, file.seasonNumber)?.let { seasonId ->
+                repository.findEpisode(seasonId, file.seasonNumber)?.let { episodeId ->
                     // TODO What do we do ? Update file path ? Show duplicate ? Nothing
-                }
-            }
-        }
+                } ?: insertNewEpisode(seasonId, file)
+            } ?: insertNewSeason(showId, file)
+        } ?: insertNewShow(file)
     }
 
 
