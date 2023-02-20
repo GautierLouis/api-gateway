@@ -45,5 +45,5 @@ data class TMDBEpisode(
     @SerialName("still_path") val stillPath: String?,
     @SerialName("vote_average") val voteAverage: Double,
     @SerialName("vote_count") val voteCount: Int,
-    @SerialName("order") val order: Int
+    @SerialName("order") val order: Int?
 )

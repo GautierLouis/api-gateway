@@ -11,7 +11,7 @@ class TVDBService(
     private val tokenRepository: TokenRepository,
     private val tvdbKey: String,
     private val tvdbPin: String,
-) : TVDBKtorService("https://api4.thetvdb.com/v4") {
+) : TVDBKtorService() {
 
     override suspend fun getToken(): BearerTokens? {
         val localToken = tokenRepository.loadToken("tvdb")?.value

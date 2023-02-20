@@ -1,11 +1,12 @@
 package com.example.remote.tmdb.model
 
+import com.example.model.TMDBShowId
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class TMDBShowExternalIds(
-    @SerialName("id") val id: Long,
+    @SerialName("id") val tmdbId: TMDBShowId,
     @SerialName("imdb_id") val imdbId: String?,
     @SerialName("freebase_mid") val freebaseMid: String?,
     @SerialName("freebase_id") val freebaseId: String?,

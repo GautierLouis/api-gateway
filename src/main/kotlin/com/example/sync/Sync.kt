@@ -30,12 +30,12 @@ class Sync : KoinComponent {
 
     private suspend fun insertNewShow(videoFile: VideoFile) {
         service.searchSingle(videoFile.showName) // Search corresponding new show
-            .next { service.getShowExternalId(it.id) } // Fetch external IDs
-            .next { repository.insertExternalIds(it) } // Inset external IDs
-            .next { service.getShow(it.tmdbId!!) } // Get new show (if any)
+            .next { service.getShow(it.id) } // Get new show (if any)
 //            .next { dataMapper.checkDataValidity(it) } // TODO Make sure we have all required data
             .next { repository.insertShow(it, videoFile) } // Inset Show in database
-            .next { service.getAllSeasonsAndEpisodes(it) }
+            .next { service.getShowExternalId(it) } // Fetch external IDs
+            .next { repository.insertExternalIds(it) } // Inset external IDs
+            .next { service.getAllSeasonsAndEpisodes(it.tmdbId!!) }
             .next { repository.insertEpisodes(it, videoFile.file) }
 
     }

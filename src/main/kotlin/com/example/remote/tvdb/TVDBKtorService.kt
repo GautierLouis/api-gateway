@@ -1,19 +1,22 @@
 package com.example.remote.tvdb
 
-import com.example.remote.AnonymousKtor
+import com.example.remote.setup
 import com.example.remote.tvdb.model.TVDBResponse
+import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.engine.apache.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 
-abstract class TVDBKtorService(baseUrl: String) {
+abstract class TVDBKtorService() {
 
     abstract suspend fun getToken(): BearerTokens?
     abstract suspend fun getRefreshToken(): BearerTokens?
 
-    private val baseClient = AnonymousKtor.init(Url(baseUrl))
+    private val url = Url("https://api4.thetvdb.com/v4")
+    private val baseClient = HttpClient(Apache) { setup(url) }
 
     val anonClient = baseClient
     val authClient = baseClient.config {

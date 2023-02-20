@@ -7,7 +7,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import java.util.*
 
-class TMDBService(token: String) : TMDBKtorService("https://api.themoviedb.org/3", token) {
+class TMDBService(token: String) : TMDBKtorService(token) {
 
     suspend fun searchSingle(query: String): Result<TMDBSearchTV> =
         search(query).mapCatching { it.result.first() }

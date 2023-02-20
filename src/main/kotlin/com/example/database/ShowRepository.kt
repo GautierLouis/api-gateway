@@ -68,21 +68,6 @@ class ShowRepository : ShowDao {
             ?.get(ShowEntity.dbId)
     }
 
-    override suspend fun insertExternalIds(ids: TMDBShowExternalIds) = query {
-        val showExternalId = ShowExternalIdsEntity.insertSingle(::resultRowToShowID) {
-            it[imdbId] = ids.imdbId
-            it[tvdbId] = ids.tvdbId
-            it[tvrageId] = ids.tvrageId
-            it[wikidataId] = ids.wikidataId
-            it[freebaseId] = ids.freebaseId
-            it[freebaseMid] = ids.freebaseMid
-            it[facebookId] = ids.facebookId
-            it[instagramId] = ids.instagramId
-        } ?: return@query Result.failure(Exception("Unable to update external ids for ${ids.id}"))
-
-        Result.success(showExternalId)
-    }
-
     override suspend fun insertShow(show: TMDBShow, videoFile: VideoFile): Result<TMDBShowId> = query {
         val entity = ShowEntity.insertSingle(::resultRowToShow) {
             it[name] = show.name
@@ -101,9 +86,10 @@ class ShowRepository : ShowDao {
             it[numberOfEpisodes] = show.numberOfEpisodes
         } ?: return@query Result.failure(Exception("Unable to store show ${show.tmdbId}"))
 
-        ShowExternalIdsEntity.update(
-            where = { ShowExternalIdsEntity.tmdbId eq show.tmdbId },
-            body = { it[showId] = entity.id })
+        ShowExternalIdsEntity.insert {
+            it[tmdbId] = show.tmdbId
+            it[showId] = entity.id
+        }
 
         SeasonsEntity.batchInsert(show.realSeasons) {
             this[SeasonsEntity.number] = it.seasonNumber
@@ -114,6 +100,32 @@ class ShowRepository : ShowDao {
 
         return@query Result.success(show.tmdbId)
 
+    }
+
+    override suspend fun insertExternalIds(ids: TMDBShowExternalIds) = query {
+        val clause = ShowExternalIdsEntity.tmdbId eq ids.tmdbId
+
+        ShowExternalIdsEntity.update(
+            where = { clause },
+            body = {
+                it[imdbId] = ids.imdbId
+                it[tvdbId] = ids.tvdbId
+                it[tvrageId] = ids.tvrageId
+                it[wikidataId] = ids.wikidataId
+                it[freebaseId] = ids.freebaseId
+                it[freebaseMid] = ids.freebaseMid
+                it[facebookId] = ids.facebookId
+                it[instagramId] = ids.instagramId
+            }
+        )
+
+        val showExternalId = ShowExternalIdsEntity
+            .select(clause)
+            .singleOrNull()
+            ?.let(::resultRowToShowID)
+            ?: return@query Result.failure(Exception("Unable to update external ids for ${ids.tmdbId}"))
+
+        Result.success(showExternalId)
     }
 
     override suspend fun insertEpisodes(episodesGroup: List<EpisodeGroup>, file: File): Result<Boolean> = query {
@@ -132,7 +144,7 @@ class ShowRepository : ShowDao {
             this[EpisodesEntity.runtime] = it.runtime
             this[EpisodesEntity.seasonNumber] = it.seasonNumber
             this[EpisodesEntity.stillPath] = it.stillPath ?: ""
-            this[EpisodesEntity.order] = it.order
+            this[EpisodesEntity.order] = it.order ?: 0
         }.map { resultRowToEpisode(it) }
 
         val externalIds = ShowExternalIdsEntity
@@ -141,18 +153,18 @@ class ShowRepository : ShowDao {
             ?: return@query Result.failure(Exception(""))
 
         val seasons = Join(
-            SeasonsEntity, ShowSeasonReference,
+            SeasonsEntity, ShowReferences,
             onColumn = SeasonsEntity.dbId,
-            otherColumn = ShowSeasonReference.seasonId,
+            otherColumn = ShowReferences.seasonId,
         ).select(ShowEntity.dbId eq externalIds.showId)
             .map { resultRowToSeason(it) }
 
         seasons.forEach { season ->
             val episodesInSeason = entities.filter { it.seasonNumber == season.number }
-            ShowSeasonReference.batchInsert(episodesInSeason) {
-                this[ShowSeasonReference.showId] = externalIds.showId
-                this[ShowSeasonReference.seasonId] = season.id
-                this[ShowSeasonReference.episodeId] = it.id
+            ShowReferences.batchInsert(episodesInSeason) {
+                this[ShowReferences.showId] = externalIds.showId
+                this[ShowReferences.seasonId] = season.id
+                this[ShowReferences.episodeId] = it.id
             }
         }
 
@@ -161,10 +173,10 @@ class ShowRepository : ShowDao {
             episodesInSeason.map { Triple(externalIds.showId, season.id, it.id) }
         }.flatten()
 
-        ShowSeasonReference.batchInsert(relations) {
-            this[ShowSeasonReference.showId] = it.first
-            this[ShowSeasonReference.seasonId] = it.second
-            this[ShowSeasonReference.episodeId] = it.third
+        ShowReferences.batchInsert(relations) {
+            this[ShowReferences.showId] = it.first
+            this[ShowReferences.seasonId] = it.second
+            this[ShowReferences.episodeId] = it.third
         }
 
         Result.success(true)

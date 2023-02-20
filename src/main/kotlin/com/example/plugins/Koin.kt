@@ -26,14 +26,22 @@ fun Application.configureKoin() {
 
             single { ShowRepository() } bind ShowDao::class
 
-            single(named(TMDB_TOKEN)) { conf.property("ktor.secrets.tmdb_token").toString() }
-            single(named(TVDB_KEY)) { conf.property("ktor.secrets.tvdb_key").toString() }
-            single(named(TVDB_PIN)) { conf.property("ktor.secrets.tvdb_pin").toString() }
+            single(named(TMDB_TOKEN)) { conf.property("ktor.secrets.tmdb_token").getString() }
+            single(named(TVDB_KEY)) { conf.property("ktor.secrets.tvdb_key").getString() }
+            single(named(TVDB_PIN)) { conf.property("ktor.secrets.tvdb_pin").getString() }
 
-            single { TMDBService(get(named(TMDB_TOKEN))) }
-            single { TVDBService(get(), get(named(TVDB_KEY)), get(named(TVDB_PIN))) }
-
-
+            single {
+                TMDBService(
+                    get(named(TMDB_TOKEN))
+                )
+            }
+            single {
+                TVDBService(
+                    get(),
+                    get(named(TVDB_KEY)),
+                    get(named(TVDB_PIN)),
+                )
+            }
         })
     }
 }
