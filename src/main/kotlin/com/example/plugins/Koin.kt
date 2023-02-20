@@ -1,7 +1,7 @@
 package com.example.plugins
 
-import com.example.database.ShowDao
-import com.example.database.ShowRepository
+import com.example.database.MDBRepositoryInteraction
+import com.example.database.TMDBRepository
 import com.example.database.TokenDao
 import com.example.database.TokenRepository
 import com.example.file.FileWatcher
@@ -10,6 +10,9 @@ import com.example.plugins.SecretsEnv.TVDB_KEY
 import com.example.plugins.SecretsEnv.TVDB_PIN
 import com.example.remote.tmdb.TMDBService
 import com.example.remote.tvdb.TVDBService
+import com.example.usecases.GetCompleteShowUseCase
+import com.example.usecases.GetEpisodesBatchUseCase
+import com.example.usecases.SearchShowUseCase
 import io.ktor.server.application.*
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
@@ -24,7 +27,7 @@ fun Application.configureKoin() {
 
             single { FileWatcher(get()) }
 
-            single { ShowRepository() } bind ShowDao::class
+            single { TMDBRepository() } bind MDBRepositoryInteraction::class
 
             single(named(TMDB_TOKEN)) { conf.property("ktor.secrets.tmdb_token").getString() }
             single(named(TVDB_KEY)) { conf.property("ktor.secrets.tvdb_key").getString() }
@@ -42,6 +45,11 @@ fun Application.configureKoin() {
                     get(named(TVDB_PIN)),
                 )
             }
+
+
+            single { SearchShowUseCase(get()) }
+            single { GetCompleteShowUseCase(get(), get(), get()) }
+            single { GetEpisodesBatchUseCase(get()) }
         })
     }
 }

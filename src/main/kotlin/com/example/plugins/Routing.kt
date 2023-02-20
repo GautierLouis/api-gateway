@@ -1,6 +1,6 @@
 package com.example.plugins
 
-import com.example.database.ShowRepository
+import com.example.database.TMDBRepository
 import com.example.file.FileWatcher
 import com.example.model.VideoFile
 import com.example.remote.tmdb.TMDBService
@@ -18,7 +18,7 @@ fun Application.configureRouting() {
     val tmService by inject<TMDBService>()
     val watcher: FileWatcher by inject { parametersOf(this.coroutineContext) }
 
-    val repo by inject<ShowRepository>()
+    val repo by inject<TMDBRepository>()
 
     routing {
 

@@ -24,24 +24,3 @@ data class Show(
     val numberOfSeasons: Int,
     val numberOfEpisodes: Int
 )
-
-
-data class Episode(
-    val id: EpisodeID,
-    val overview: String,
-    val runtime: Int,
-    val thumbnail: String,
-    val number: Int,
-    val name: String,
-    val aired: LocalDate,
-    val path: String,
-    val seasonNumber: Int,
-)
-
-data class Season(
-    val id: SeasonID,
-    val number: Int,
-    val poster: String,
-    val airDate: LocalDate,
-    val overview: String
-)

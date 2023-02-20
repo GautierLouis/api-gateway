@@ -1,11 +1,12 @@
 package com.example.database.entity
 
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.dao.Entity
+import org.jetbrains.exposed.dao.EntityClass
+import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.dao.id.LongIdTable
 
-object ShowExternalIdsEntity : Table("show_external_id") {
-    val dbId = long("db_id").autoIncrement()
-    override val primaryKey = PrimaryKey(dbId)
-    val showId = reference("show_id", ShowEntity.dbId).uniqueIndex()
+object ShowExternalIdsEntity : LongIdTable("show_external_id") {
+    val show = reference("show", ShowEntity).uniqueIndex()
     val tmdbId = long("tmdb_id").uniqueIndex().nullable()
     val imdbId = varchar128("imdb_id").nullable()
     val tvdbId = integer("tvdb_id").nullable()
@@ -15,4 +16,19 @@ object ShowExternalIdsEntity : Table("show_external_id") {
     val tvrageId = integer("tvrage_id").nullable()
     val facebookId = varchar128("facebook_id").nullable()
     val instagramId = varchar128("instagram_id").nullable()
+}
+
+class ShowExternalIdsDAO(id: EntityID<Long>) : Entity<Long>(id) {
+    companion object : EntityClass<Long, ShowExternalIdsDAO>(ShowExternalIdsEntity)
+
+    var tmdbId by ShowExternalIdsEntity.tmdbId
+    var imdbId by ShowExternalIdsEntity.imdbId
+    var tvdbId by ShowExternalIdsEntity.tvdbId
+    var wikidataId by ShowExternalIdsEntity.wikidataId
+    var freebaseId by ShowExternalIdsEntity.freebaseId
+    var freebaseMid by ShowExternalIdsEntity.freebaseMid
+    var tvrageId by ShowExternalIdsEntity.tvrageId
+    var facebookId by ShowExternalIdsEntity.facebookId
+    var instagramId by ShowExternalIdsEntity.instagramId
+    var show by ShowDAO referencedOn ShowEntity.id
 }

@@ -2,7 +2,6 @@ package com.example.remote.tmdb
 
 import com.example.model.TMDBShowId
 import com.example.remote.tmdb.model.*
-import com.example.utils.next
 import io.ktor.client.request.*
 import io.ktor.http.*
 import java.util.*
@@ -24,26 +23,22 @@ class TMDBService(token: String) : TMDBKtorService(token) {
         authClient.get("/tv/$id/external_ids")
     }
 
-//    suspend fun getSeason(showId: TMDBID, seasonNumber: Int): Result<Season> = call {
-//        authClient.get("/tv/$showId/season/$seasonNumber")
-//    }
-//
-//    suspend fun getEpisode(showId: TMDBID, seasonNumber: Int, episodeNumber: Int): Result<EpisodeElement> = call {
-//        authClient.get("/tv/$showId/season/$seasonNumber/episode/$episodeNumber")
-//    }
-
-    suspend fun getAllSeasonsAndEpisodes(showId: TMDBShowId): Result<List<EpisodeGroup>> {
-        return getEpisodeGroupId(showId).next { getEpisodeGroup(it.groupId) }
-            .map { it.groups ?: emptyList() }
+    suspend fun getSeason(showId: TMDBShowId, seasonNumber: Int): Result<TMDBSeason> = call {
+        authClient.get("/tv/$showId/season/$seasonNumber")
     }
 
-    private suspend fun getEpisodeGroup(groupId: String): Result<ShowEpisodeGroupID> = call {
+    suspend fun getEpisode(showId: TMDBShowId, seasonNumber: Int, episodeNumber: Int): Result<TMDBEpisode> = call {
+        authClient.get("/tv/$showId/season/$seasonNumber/episode/$episodeNumber")
+    }
+
+    suspend fun getEpisodeGroup(groupId: String): Result<List<TMDBEpisode>> = call<ShowEpisodeGroupID> {
         authClient.get("/tv/episode_group/$groupId")
-    }
+    }.runCatching { this.getOrThrow().groups!!.flatMap { it.episodes } }
 
-    private suspend fun getEpisodeGroupId(showId: TMDBShowId): Result<ShowEpisodeGroupID> =
+    // TODO Avoid this call = Find a way to know is a show has his episodes grouped or not
+    suspend fun getEpisodeGroupId(showId: TMDBShowId): Result<List<ShowEpisodeGroupID>> =
         call<ShowEpisodeGroupResponse> {
             authClient.get("/tv/$showId/episode_groups")
-        }.runCatching { this.getOrThrow().result.first() }
+        }.runCatching { getOrThrow().result }
 }
 

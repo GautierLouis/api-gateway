@@ -1,10 +1,11 @@
 package com.example.sync
 
-import com.example.database.ShowRepository
+import com.example.database.TMDBRepository
 import com.example.model.VideoFile
-import com.example.remote.tmdb.TMDBService
 import com.example.remote.tmdb.model.TMDBEpisode
 import com.example.remote.tmdb.model.TMDBShow
+import com.example.usecases.GetCompleteShowUseCase
+import com.example.usecases.SearchShowUseCase
 import com.example.utils.next
 import kotlinx.datetime.LocalDate
 import org.koin.core.component.KoinComponent
@@ -13,9 +14,11 @@ import org.koin.core.component.inject
 
 class Sync : KoinComponent {
 
-    private val service by inject<TMDBService>()
-    private val repository by inject<ShowRepository>()
+    private val repository by inject<TMDBRepository>()
     private val dataMapper by inject<DataMapper>()
+
+    private val searchShowUseCase by inject<SearchShowUseCase>()
+    private val getShowUseCase by inject<GetCompleteShowUseCase>()
 
     suspend fun triggerSync(file: VideoFile) {
 
@@ -29,18 +32,10 @@ class Sync : KoinComponent {
     }
 
     private suspend fun insertNewShow(videoFile: VideoFile) {
-        service.searchSingle(videoFile.showName) // Search corresponding new show
-            .next { service.getShow(it.id) } // Get new show (if any)
-//            .next { dataMapper.checkDataValidity(it) } // TODO Make sure we have all required data
-            .next { repository.insertShow(it, videoFile) } // Inset Show in database
-            .next { service.getShowExternalId(it) } // Fetch external IDs
-            .next { repository.insertExternalIds(it) } // Inset external IDs
-            .next { service.getAllSeasonsAndEpisodes(it.tmdbId!!) }
-            .next { repository.insertEpisodes(it, videoFile.file) }
-
+        searchShowUseCase.execute(videoFile.showName)
+            .next { getShowUseCase.execute(it.id, videoFile) }
     }
 }
-
 
 val mockLocalDate = LocalDate.fromEpochDays(0)
 val mock = TMDBShow(

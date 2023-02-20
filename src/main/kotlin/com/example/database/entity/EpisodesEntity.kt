@@ -1,13 +1,14 @@
 package com.example.database.entity
 
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.dao.Entity
+import org.jetbrains.exposed.dao.EntityClass
+import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.kotlin.datetime.date
 
-object EpisodesEntity : Table("episode") {
-    val dbId = long("db_id").autoIncrement()
-    override val primaryKey = PrimaryKey(dbId)
+object EpisodesEntity : LongIdTable("episode") {
     val number = integer("number")
-    val path = text("path")
+    val path = text("path").nullable()
     val airDate = date("air_date")
     val name = varchar128("name")
     val overview = text("overview")
@@ -16,6 +17,27 @@ object EpisodesEntity : Table("episode") {
     val seasonNumber = integer("season_number")
     val stillPath = text("still_path")
     val order = integer("order")
+    val season = reference("season", SeasonsEntity)
+    val show = reference("show", ShowEntity)
 }
+
+class EpisodesDAO(id: EntityID<Long>) : Entity<Long>(id) {
+    companion object : EntityClass<Long, EpisodesDAO>(EpisodesEntity)
+
+    var overview by EpisodesEntity.overview
+    var runtime by EpisodesEntity.runtime
+    var stillPath by EpisodesEntity.stillPath
+    var number by EpisodesEntity.number
+    var name by EpisodesEntity.name
+    var airDate by EpisodesEntity.airDate
+    var path by EpisodesEntity.path
+    var seasonNumber by EpisodesEntity.seasonNumber
+    var productionCode by EpisodesEntity.productionCode
+    var order by EpisodesEntity.order
+
+    var season by SeasonsDAO referencedOn SeasonsEntity.id
+    var show by ShowDAO referencedOn ShowEntity.id
+}
+
 
 

@@ -129,24 +129,6 @@ data class ProductionCountry(
 )
 
 @Serializable
-data class TMDBSeason(
-    @SerialName("air_date")
-    val airDate: LocalDate?,
-    @SerialName("episode_count")
-    val episodeCount: Long,
-    @SerialName("id")
-    val id: Long,
-    @SerialName("name")
-    val name: String,
-    @SerialName("overview")
-    val overview: String,
-    @SerialName("poster_path")
-    val posterPath: String?,
-    @SerialName("season_number")
-    val seasonNumber: Int
-)
-
-@Serializable
 data class SpokenLanguage(
     @SerialName("english_name")
     val englishName: String,
