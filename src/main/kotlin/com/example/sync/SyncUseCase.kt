@@ -7,6 +7,7 @@ import com.example.model.TMDBShowId
 import com.example.model.VideoFile
 import com.example.remote.tmdb.TMDBService
 import com.example.remote.tmdb.model.TMDBEpisode
+import com.example.remote.tmdb.model.TMDBSeason
 import com.example.remote.tmdb.model.TMDBShow
 import com.example.usecases.GetCompleteShowUseCase
 import com.example.usecases.SearchShowUseCase
@@ -98,7 +99,7 @@ val mock = TMDBShow(
     posterPath = null,
     productionCompanies = emptyList(),
     productionCountries = emptyList(),
-    seasons = emptyList(),
+    seasons = listOf(TMDBSeason(null, 1, 1L, "", "", null, 1, emptyList())),
     spokenLanguages = emptyList(),
     status = "",
     tagline = "",

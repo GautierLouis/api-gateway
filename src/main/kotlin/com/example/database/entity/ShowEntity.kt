@@ -21,6 +21,8 @@ object ShowEntity : LongIdTable("show") {
     val numberOfSeasons = integer("number_of_seasons")
     val numberOfEpisodes = integer("number_of_episodes")
 
+    val externalIds = reference("ref_external_id", ShowExternalIdsEntity).nullable()
+
     // Local info
     val path = text("path")
     val findBy = varchar128("find_by")
@@ -44,7 +46,7 @@ class ShowDAO(id: EntityID<Long>) : Entity<Long>(id) {
     var path by ShowEntity.path
     var findBy by ShowEntity.findBy
 
-    val externalsIds by ShowExternalIdsDAO referencedOn ShowExternalIdsEntity.show
+    var externalsIds by ShowExternalIdsDAO optionalReferencedOn ShowEntity.externalIds
     val seasons by SeasonsDAO referrersOn SeasonsEntity.show
     val episodes by EpisodesDAO referrersOn EpisodesEntity.show
 }

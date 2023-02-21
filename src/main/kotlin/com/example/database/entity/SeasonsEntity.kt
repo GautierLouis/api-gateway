@@ -11,7 +11,8 @@ object SeasonsEntity : LongIdTable("seasons") {
     val poster = varchar128("poster")
     val airDate = date("air_date")
     val overview = text("overview")
-    val show = reference("show", ShowEntity)
+    val show = reference("ref_show", ShowEntity)
+    val episodes = reference("ref_episodes", EpisodesEntity).nullable()
 }
 
 class SeasonsDAO(id: EntityID<Long>) : Entity<Long>(id) {
@@ -21,6 +22,6 @@ class SeasonsDAO(id: EntityID<Long>) : Entity<Long>(id) {
     var poster by SeasonsEntity.poster
     var airDate by SeasonsEntity.airDate
     var overview by SeasonsEntity.overview
-    var show by ShowDAO referencedOn ShowEntity.id
+    var show by ShowDAO referencedOn SeasonsEntity.show
     val episodes by EpisodesDAO referrersOn EpisodesEntity.season
 }

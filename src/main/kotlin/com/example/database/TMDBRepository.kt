@@ -40,6 +40,7 @@ class TMDBRepository : TMDBRepositoryInteraction {
     }
 
     override suspend fun insertShow(tmdbShow: TMDBShow, videoFile: VideoFile): Result<Show> = query {
+
         val entity = ShowDAO.new {
             name = tmdbShow.name
             firstAired = tmdbShow.firstAirDate
@@ -57,7 +58,7 @@ class TMDBRepository : TMDBRepositoryInteraction {
             numberOfEpisodes = tmdbShow.numberOfEpisodes
         }
 
-        ShowExternalIdsDAO.new {
+        val externalIds = ShowExternalIdsDAO.new {
             tmdbId = tmdbShow.tmdbId
             this.show = entity
         }
@@ -71,6 +72,8 @@ class TMDBRepository : TMDBRepositoryInteraction {
                 show = entity
             }
         }
+
+        entity.externalsIds = externalIds
 
         return@query Result.success(entity.toModel())
 

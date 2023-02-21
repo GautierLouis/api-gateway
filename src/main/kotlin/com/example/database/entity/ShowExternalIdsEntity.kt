@@ -30,5 +30,5 @@ class ShowExternalIdsDAO(id: EntityID<Long>) : Entity<Long>(id) {
     var tvrageId by ShowExternalIdsEntity.tvrageId
     var facebookId by ShowExternalIdsEntity.facebookId
     var instagramId by ShowExternalIdsEntity.instagramId
-    var show by ShowDAO referencedOn ShowEntity.id
+    var show by ShowDAO referencedOn ShowExternalIdsEntity.show
 }

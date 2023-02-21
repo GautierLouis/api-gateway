@@ -17,8 +17,8 @@ object EpisodesEntity : LongIdTable("episode") {
     val seasonNumber = integer("season_number")
     val stillPath = text("still_path")
     val order = integer("order")
-    val season = reference("season", SeasonsEntity)
-    val show = reference("show", ShowEntity)
+    val season = reference("ref_season", SeasonsEntity)
+    val show = reference("ref_show", ShowEntity)
 }
 
 class EpisodesDAO(id: EntityID<Long>) : Entity<Long>(id) {
@@ -35,8 +35,8 @@ class EpisodesDAO(id: EntityID<Long>) : Entity<Long>(id) {
     var productionCode by EpisodesEntity.productionCode
     var order by EpisodesEntity.order
 
-    var season by SeasonsDAO referencedOn SeasonsEntity.id
-    var show by ShowDAO referencedOn ShowEntity.id
+    var season by SeasonsDAO referencedOn EpisodesEntity.season
+    var show by ShowDAO referencedOn EpisodesEntity.show
 }
 
 
