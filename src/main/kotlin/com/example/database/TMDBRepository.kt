@@ -1,14 +1,14 @@
 package com.example.database
 
 import com.example.database.entity.*
-import com.example.model.Show
-import com.example.model.VideoFile
+import com.example.model.*
 import com.example.remote.tmdb.model.TMDBEpisode
 import com.example.remote.tmdb.model.TMDBShow
 import com.example.remote.tmdb.model.TMDBShowExternalIds
 import kotlinx.datetime.LocalDate
 import org.jetbrains.exposed.sql.Join
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.select
 
 class TMDBRepository : TMDBRepositoryInteraction {
@@ -25,19 +25,19 @@ class TMDBRepository : TMDBRepositoryInteraction {
         }
     }
 
-//    override suspend fun findSeason(id: ShowID, seasonNumber: Int): SeasonID? {
-//        val matchNumber = SeasonsEntity.number eq seasonNumber
-//        val matchId = SeasonsEntity.show eq id
-//        val predicate = matchNumber and matchId
-//        return SeasonsDAO.find(predicate).singleOrNull()?.id?.value
-//    }
-//
-//    override suspend fun findEpisode(seasonID: SeasonID, episodeNumber: Int): EpisodeID? {
-//        val matchNumber = EpisodesEntity.number eq episodeNumber
-//        val matchId = EpisodesEntity.season eq seasonID
-//        val predicate = matchNumber and matchId
-//        return EpisodesDAO.find(predicate).singleOrNull()?.id?.value
-//    }
+    override suspend fun findSeason(id: ShowID, seasonNumber: Int): Season? {
+        val matchNumber = SeasonsEntity.number eq seasonNumber
+        val matchId = SeasonsEntity.show eq id
+        val predicate = matchNumber and matchId
+        return SeasonsDAO.find(predicate).singleOrNull()?.toModel()
+    }
+
+    override suspend fun findEpisode(seasonID: SeasonID, episodeNumber: Int): Episode? {
+        val matchNumber = EpisodesEntity.number eq episodeNumber
+        val matchId = EpisodesEntity.season eq seasonID
+        val predicate = matchNumber and matchId
+        return EpisodesDAO.find(predicate).singleOrNull()?.toModel()
+    }
 
     override suspend fun insertShow(tmdbShow: TMDBShow, videoFile: VideoFile): Result<Show> = query {
         val entity = ShowDAO.new {

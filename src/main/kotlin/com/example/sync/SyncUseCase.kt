@@ -40,7 +40,7 @@ class SyncUseCase(
     }
 
     private suspend fun insertNewSeason(show: Show, videoFile: VideoFile) {
-        getSeasonUseCase.execute(show.externalId!!.tmdbId, videoFile.seasonNumber)
+//        getSeasonUseCase.execute(show.externalId!!.tmdbId, videoFile.seasonNumber)
     }
 
     private suspend fun insertNewEpisode(seasonID: SeasonID, videoFile: VideoFile) {
