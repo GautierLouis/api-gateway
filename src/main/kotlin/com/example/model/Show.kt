@@ -23,4 +23,8 @@ data class Show(
     val overview: String,
     val numberOfSeasons: Int,
     val numberOfEpisodes: Int
-)
+) {
+    var externalId: ShowExternalId? = null
+    var seasons: List<Season>? = null
+    var episode: List<Episode>? = null
+}

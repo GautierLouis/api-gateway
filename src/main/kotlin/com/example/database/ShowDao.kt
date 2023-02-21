@@ -6,9 +6,9 @@ import com.example.remote.tmdb.model.TMDBShow
 import com.example.remote.tmdb.model.TMDBShowExternalIds
 
 interface TMDBRepositoryInteraction {
-    suspend fun findShow(cleanName: String): ShowID?
-    suspend fun findSeason(id: ShowID, seasonNumber: Int): SeasonID?
-    suspend fun findEpisode(seasonID: SeasonID, episodeNumber: Int): EpisodeID?
+    suspend fun findShow(cleanName: String): Show?
+    suspend fun findSeason(id: ShowID, seasonNumber: Int): Season?
+    suspend fun findEpisode(seasonID: SeasonID, episodeNumber: Int): Episode?
 
     suspend fun insertShow(tmdbShow: TMDBShow, videoFile: VideoFile): Result<Show>
     suspend fun insertExternalIds(ids: TMDBShowExternalIds): Result<ShowExternalId>
