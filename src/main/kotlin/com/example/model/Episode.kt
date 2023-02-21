@@ -10,6 +10,6 @@ data class Episode(
     val number: Int,
     val name: String,
     val aired: LocalDate,
-    val path: String,
+    val path: String?,
     val seasonNumber: Int,
 )

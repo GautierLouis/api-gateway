@@ -60,8 +60,7 @@ object DatabaseFactory {
                 ShowEntity,
                 ShowExternalIdsEntity,
                 SeasonsEntity,
-                EpisodesEntity,
-                ShowReferences
+                EpisodesEntity
             )
         }
     }

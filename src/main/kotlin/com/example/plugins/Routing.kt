@@ -5,7 +5,6 @@ import com.example.file.FileWatcher
 import com.example.model.VideoFile
 import com.example.remote.tmdb.TMDBService
 import com.example.remote.tvdb.TVDBService
-import com.example.sync.SyncUseCase
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -36,7 +35,7 @@ fun Application.configureRouting() {
             val file =
                 File("/Users/louisgautier/Documents/Plex/The.Boys.S03.MULTi.1080p.AMZN.WEBRip.DDP5.1.x265-R3MiX/The.Boys.S03E01.MULTi.1080p.AMZN.WEBRip.DDP5.1.x265-R3MiX.mkv")
             val videoFile = VideoFile("The Boys", 3, 1, file)
-            SyncUseCase().triggerSync(videoFile)
+//           sy.execute(videoFile)
         }
     }
 }
