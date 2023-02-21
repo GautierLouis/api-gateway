@@ -4,7 +4,7 @@ import com.example.database.DatabaseFactory
 import com.example.database.TMDBRepository
 import com.example.model.VideoFile
 import com.example.plugins.configureRouting
-import com.example.sync.mock
+import com.example.utils.mockTMDBShow
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -16,6 +16,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ApplicationTest {
+    // Obviously not a good thing
+    val db = File("/Users/louisgautier/Desktop/test/data.db")
+
+
     @Test
     fun testRoot() = testApplication {
         application {
@@ -29,8 +33,7 @@ class ApplicationTest {
 
     @AfterTest
     fun purge() {
-        val db = File("/Users/louisgautier/Desktop/test/data.db")
-//        db.delete()
+        db.delete()
     }
 
 
@@ -40,10 +43,11 @@ class ApplicationTest {
         val repo = TMDBRepository()
 
         runBlocking {
-            val result = repo.insertShow(mock, VideoFile("TEST", 1, 1, File.createTempFile("prefix", "suffix")))
+            val result = repo.insertShow(mockTMDBShow, VideoFile("TEST", 1, 1, File.createTempFile("prefix", "suffix")))
             val show = repo.findShow("TEST")
             assert(result.isSuccess)
             assert(show != null)
+
         }
     }
 }

@@ -6,13 +6,9 @@ import com.example.model.Show
 import com.example.model.TMDBShowId
 import com.example.model.VideoFile
 import com.example.remote.tmdb.TMDBService
-import com.example.remote.tmdb.model.TMDBEpisode
-import com.example.remote.tmdb.model.TMDBSeason
-import com.example.remote.tmdb.model.TMDBShow
 import com.example.usecases.GetCompleteShowUseCase
 import com.example.usecases.SearchShowUseCase
 import com.example.utils.next
-import kotlinx.datetime.LocalDate
 
 
 class SyncUseCase(
@@ -57,53 +53,3 @@ class GetSeasonUseCase(
         service.getSeason(id, seasonNumber)
     }
 }
-
-
-val mockLocalDate = LocalDate.fromEpochDays(0)
-val mock = TMDBShow(
-    backdropPath = "",
-    createdBy = emptyList(),
-    episodeRunTime = listOf(0),
-    firstAirDate = mockLocalDate,
-    genres = emptyList(),
-    homepage = "",
-    tmdbId = 0L,
-    inProduction = false,
-    languages = emptyList(),
-    lastAirDate = mockLocalDate,
-    lastEpisodeToAir = TMDBEpisode(
-        airDate = mockLocalDate,
-        episodeNumber = 0,
-        id = 0L,
-        name = "",
-        overview = "",
-        productionCode = "101",
-        seasonNumber = 1,
-        stillPath = null,
-        voteAverage = 0.0,
-        voteCount = 0,
-        runtime = 0,
-        order = 0,
-        tmdbId = 0L
-    ),
-    name = "",
-    nextEpisodeToAir = null,
-    networks = emptyList(),
-    numberOfEpisodes = 0,
-    numberOfSeasons = 0,
-    originCountry = emptyList(),
-    originalLanguage = "",
-    originalName = "",
-    overview = "",
-    popularity = 0.0,
-    posterPath = null,
-    productionCompanies = emptyList(),
-    productionCountries = emptyList(),
-    seasons = listOf(TMDBSeason(null, 1, 1L, "", "", null, 1, emptyList())),
-    spokenLanguages = emptyList(),
-    status = "",
-    tagline = "",
-    type = "",
-    voteAverage = 0.0,
-    voteCount = 0L
-)
