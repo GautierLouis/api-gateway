@@ -3,13 +3,13 @@ package com.example.database
 import com.example.database.entity.*
 import com.example.model.*
 import com.example.remote.tmdb.model.TMDBEpisode
+import com.example.remote.tmdb.model.TMDBSeason
 import com.example.remote.tmdb.model.TMDBShow
 import com.example.remote.tmdb.model.TMDBShowExternalIds
 import kotlinx.datetime.LocalDate
-import org.jetbrains.exposed.sql.Join
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.batchInsert
 
 class TMDBRepository : TMDBRepositoryInteraction {
 
@@ -39,7 +39,11 @@ class TMDBRepository : TMDBRepositoryInteraction {
         return EpisodesDAO.find(predicate).singleOrNull()?.toModel()
     }
 
-    override suspend fun insertShow(tmdbShow: TMDBShow, videoFile: VideoFile): Result<Show> = query {
+    override suspend fun insertShow(
+        tmdbShow: TMDBShow,
+        externalId: TMDBShowExternalIds,
+        cleanName: String,
+    ): Result<Show> = query {
 
         val entity = ShowDAO.new {
             name = tmdbShow.name
@@ -52,25 +56,20 @@ class TMDBRepository : TMDBRepositoryInteraction {
             status = tmdbShow.status
             averageRuntime = tmdbShow.episodeRunTime.average()
             overview = tmdbShow.overview
-            path = videoFile.file.path
-            findBy = videoFile.showName
+            findBy = cleanName
             numberOfSeasons = tmdbShow.realSeasons.count()
             numberOfEpisodes = tmdbShow.numberOfEpisodes
         }
 
         val externalIds = ShowExternalIdsDAO.new {
-            tmdbId = tmdbShow.tmdbId
             this.show = entity
-        }
-
-        tmdbShow.realSeasons.map {
-            SeasonsDAO.new {
-                number = it.seasonNumber
-                poster = it.posterPath ?: ""
-                airDate = it.airDate ?: LocalDate.fromEpochDays(0)
-                overview = it.overview
-                show = entity
-            }
+            tvdbId = externalId.tvdbId
+            tvrageId = externalId.tvrageId
+            wikidataId = externalId.wikidataId
+            freebaseId = externalId.freebaseId
+            freebaseMid = externalId.freebaseMid
+            facebookId = externalId.facebookId
+            instagramId = externalId.instagramId
         }
 
         entity.externalsIds = externalIds
@@ -79,59 +78,42 @@ class TMDBRepository : TMDBRepositoryInteraction {
 
     }
 
-    override suspend fun insertExternalIds(ids: TMDBShowExternalIds) = query {
-        val clause = ShowExternalIdsEntity.tmdbId eq ids.tmdbId
-
-        val entity = ShowExternalIdsDAO.find(clause).singleOrNull()
-            ?.apply {
-                tvdbId = ids.tvdbId
-                tvrageId = ids.tvrageId
-                wikidataId = ids.wikidataId
-                freebaseId = ids.freebaseId
-                freebaseMid = ids.freebaseMid
-                facebookId = ids.facebookId
-                instagramId = ids.instagramId
-            } ?: return@query Result.failure(Exception("Unable to update external ids for ${ids.tmdbId}"))
-
-        Result.success(entity.toModel())
+    override suspend fun batchInsertSeasons(showId: ShowID, season: List<TMDBSeason>): List<Season> = query {
+        SeasonsEntity.batchInsert(season, shouldReturnGeneratedValues = true) {
+            this[SeasonsEntity.number] = it.seasonNumber
+            this[SeasonsEntity.poster] = it.posterPath ?: "" // TODO
+            this[SeasonsEntity.airDate] = it.airDate ?: LocalDate.fromEpochDays(0) //TODO
+            this[SeasonsEntity.overview] = it.overview
+            this[SeasonsEntity.show] = showId
+        }.map { SeasonsDAO.findById(it[SeasonsEntity.id])!!.toModel() }
     }
 
-    override suspend fun insertEpisodes(
+    override suspend fun batchInsertEpisodes(
+        showId: ShowID,
+        seasons: List<Season>,
         episodes: List<TMDBEpisode>,
         videoFile: VideoFile
-    ): Result<Boolean> = query {
-        episodes.map { episode ->
-            val showId = Join(
-                ShowExternalIdsEntity, ShowEntity,
-                onColumn = ShowExternalIdsEntity.show,
-                otherColumn = ShowEntity.id
-            ).select {
-                ShowExternalIdsEntity.tmdbId eq episode.tmdbId
-            }.singleOrNull()?.let { it[ShowEntity.id] }
-                ?: return@query Result.failure(Exception(""))
+    ) = query {
+        EpisodesEntity.batchInsert(episodes, shouldReturnGeneratedValues = true) {
+            val seasonId = seasons.first { s -> s.number == it.seasonNumber }.id
 
-            val seasonResult = SeasonsDAO.find(SeasonsEntity.show eq showId).first()
             val filePath =
-                if (videoFile.episodeNumber == episode.episodeNumber && videoFile.seasonNumber == episode.seasonNumber)
-                    videoFile.file.path
+                if (videoFile.match(it.seasonNumber, it.episodeNumber)) videoFile.file.absolutePath
                 else null
 
-            EpisodesDAO.new {
-                number = episode.episodeNumber
-                path = filePath
-                airDate = episode.airDate
-                name = episode.name
-                overview = episode.overview
-                productionCode = episode.productionCode
-                runtime = episode.runtime
-                seasonNumber = episode.seasonNumber
-                stillPath = episode.stillPath ?: ""
-                order = episode.order ?: 0
-                show = ShowDAO.findById(showId)!!
-                season = seasonResult
-            }
-        }
-
-        Result.success(true)
+            this[EpisodesEntity.number] = it.episodeNumber
+            this[EpisodesEntity.path] = videoFile.file.path
+            this[EpisodesEntity.airDate] = it.airDate
+            this[EpisodesEntity.name] = it.name
+            this[EpisodesEntity.overview] = it.overview
+            this[EpisodesEntity.productionCode] = it.productionCode
+            this[EpisodesEntity.runtime] = it.runtime
+            this[EpisodesEntity.seasonNumber] = it.seasonNumber
+            this[EpisodesEntity.stillPath] = it.stillPath ?: "" // TODO
+            this[EpisodesEntity.order] = it.order ?: -1 //TODO
+            this[EpisodesEntity.season] = seasonId
+            this[EpisodesEntity.show] = showId
+            this[EpisodesEntity.path] = filePath
+        }.map { EpisodesDAO.findById(it[EpisodesEntity.id])!!.toModel() }
     }
 }

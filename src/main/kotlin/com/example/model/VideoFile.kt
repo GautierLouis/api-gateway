@@ -7,4 +7,7 @@ data class VideoFile(
     val seasonNumber: Int,
     val episodeNumber: Int,
     val file: File
-)
+) {
+    fun match(seasonNumber: Int, episodeNumber: Int) =
+        this.seasonNumber == seasonNumber && this.episodeNumber == episodeNumber
+}

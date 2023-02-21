@@ -19,28 +19,22 @@ class GetCompleteShowUseCase(
 
     suspend fun execute(id: TMDBShowId, videoFile: VideoFile): Result<Show> {
         return try {
-            val show = service.getShow(id).getOrThrow()
+            val remoteShow = service.getShow(id).getOrThrow()
             val externalIds = service.getShowExternalId(id).getOrThrow()
 
             //TODO Try to make this call only if group exist
             val episodeGroup = service.getEpisodeGroupId(id).getOrThrow()
 
-            val episodes = getEpisodes(episodeGroup, show).getOrThrow()
+            val remoteEpisodes = getEpisodes(episodeGroup, remoteShow).getOrThrow()
 
-            val newShow = repository.insertShow(show, videoFile)
-            val newIds = repository.insertExternalIds(externalIds)
-            val newEpisodes = repository.insertEpisodes(episodes, videoFile)
+            repository.insertShow(remoteShow, externalIds, videoFile.showName)
+                .onSuccess { entity ->
+                    val newSeasons = repository.batchInsertSeasons(entity.id, remoteShow.realSeasons)
+                    val newEpisodes = repository.batchInsertEpisodes(entity.id, newSeasons, remoteEpisodes, videoFile)
 
-
-            return if (newShow.isSuccess && newIds.isSuccess && newEpisodes.isSuccess) {
-                newShow
-            } else Result.failure(
-                Exception(
-                    newShow.exceptionOrNull() ?: newIds.exceptionOrNull() ?: newEpisodes.exceptionOrNull() ?: Exception(
-                        "Unknown Exception"
-                    )
-                )
-            )
+                    entity.episode = newEpisodes
+                    entity.seasons = newSeasons
+                }
 
         } catch (e: Exception) {
             Result.failure(e)

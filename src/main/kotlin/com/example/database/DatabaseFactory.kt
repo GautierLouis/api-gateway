@@ -2,8 +2,10 @@ package com.example.database
 
 import com.example.database.entity.*
 import kotlinx.coroutines.Dispatchers
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.statements.InsertStatement
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.DatabaseConfig
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -13,41 +15,20 @@ import java.sql.Connection
 suspend fun <T> query(block: suspend () -> T): T =
     newSuspendedTransaction(Dispatchers.IO) { block() }
 
-
-suspend fun <T> querySafe(block: suspend () -> T?): Result<T> =
-    try {
-        newSuspendedTransaction(Dispatchers.IO) {
-            val result = block()
-            result?.let { Result.success(it) } ?: Result.failure(Exception("Unable to perform query"))
-        }
-    } catch (e: Exception) {
-        Result.failure(e)
-    }
-
-fun <T : Table, M> T.insertSingle(serializer: (ResultRow) -> M, body: T.(InsertStatement<Number>) -> Unit): M? =
-    InsertStatement<Number>(this)
-        .apply {
-            body(this)
-            execute(TransactionManager.current())
-        }.resultedValues
-        ?.firstOrNull()
-        ?.let(serializer)
-
-
 object DatabaseFactory {
 
-    fun initInFile() {
+    fun initInFile(): Database {
 
         val url = "jdbc:sqlite:/Users/louisgautier/Desktop/test/data.db"
-        init(url)
+        return init(url)
     }
 
-    fun initInMemory() {
+    fun initInMemory(): Database {
         val url = "jdbc:sqlite:file:test?mode=memory&cache=shared"
-        init(url)
+        return init(url)
     }
 
-    private fun init(url: String) {
+    private fun init(url: String): Database {
         val config = DatabaseConfig {
             sqlLogger = Slf4jSqlDebugLogger
         }
@@ -63,5 +44,6 @@ object DatabaseFactory {
                 EpisodesEntity
             )
         }
+        return database
     }
 }
