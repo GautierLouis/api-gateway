@@ -26,18 +26,18 @@ class TMDBRepository : TMDBRepositoryInteraction {
         }
     }
 
-    override suspend fun findSeason(id: ShowID, seasonNumber: Int): Season? {
+    override suspend fun findSeason(id: ShowID, seasonNumber: Int): Season? = query {
         val matchNumber = SeasonsEntity.number eq seasonNumber
         val matchId = SeasonsEntity.show eq id
         val predicate = matchNumber and matchId
-        return SeasonsDAO.find(predicate).singleOrNull()?.toModel()
+        SeasonsDAO.find(predicate).singleOrNull()?.toModel()
     }
 
-    override suspend fun findEpisode(seasonID: SeasonID, episodeNumber: Int): Episode? {
+    override suspend fun findEpisode(seasonID: SeasonID, episodeNumber: Int): Episode? = query {
         val matchNumber = EpisodesEntity.number eq episodeNumber
         val matchId = EpisodesEntity.season eq seasonID
         val predicate = matchNumber and matchId
-        return EpisodesDAO.find(predicate).singleOrNull()?.toModel()
+        EpisodesDAO.find(predicate).singleOrNull()?.toModel()
     }
 
     override suspend fun insertShow(
