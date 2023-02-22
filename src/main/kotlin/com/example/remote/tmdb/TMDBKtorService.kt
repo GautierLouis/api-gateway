@@ -1,22 +1,22 @@
 package com.example.remote.tmdb
 
-import com.example.remote.setup
+import com.example.plugins.SecretsEnv.TMDB_ENGINE
 import com.example.remote.tmdb.model.TMDBResponseError
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.apache.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import org.koin.core.qualifier.named
 
 abstract class TMDBKtorService(
     token: String
-) {
+) : KoinComponent {
 
-    private val url = Url("https://api.themoviedb.org/3")
-
-    private val baseClient = HttpClient(Apache) { setup(url) }
+    private val baseClient: HttpClient by inject(named(TMDB_ENGINE))
 
     val authClient = baseClient.config {
         install(Auth) {

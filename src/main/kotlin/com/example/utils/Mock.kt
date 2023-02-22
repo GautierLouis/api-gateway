@@ -3,12 +3,15 @@ package com.example.utils
 import com.example.remote.tmdb.model.TMDBEpisode
 import com.example.remote.tmdb.model.TMDBSeason
 import com.example.remote.tmdb.model.TMDBShow
+import com.example.remote.tmdb.model.TMDBShowExternalIds
 import kotlinx.datetime.LocalDate
+import java.io.File
 
 /**
  * Should only be used to mock data (unit test, user test...)
  */
-
+val mockFile =
+    File("/Users/louisgautier/Documents/Plex/The.Boys.S03.MULTi.1080p.AMZN.WEBRip.DDP5.1.x265-R3MiX/The.Boys.S03E01.MULTi.1080p.AMZN.WEBRip.DDP5.1.x265-R3MiX.mkv")
 val mockLocalDate = LocalDate.fromEpochDays(0)
 val mockTMDBEpisode = TMDBEpisode(
     airDate = mockLocalDate,
@@ -83,4 +86,15 @@ val mockTMDBShow = TMDBShow(
     type = "",
     voteAverage = 0.0,
     voteCount = 0L
+)
+val mockExternalIds = TMDBShowExternalIds(
+    mockTMDBShow.tmdbId,
+    imdbId = null,
+    freebaseMid = null,
+    freebaseId = null,
+    tvdbId = null,
+    tvrageId = null,
+    wikidataId = null,
+    facebookId = null,
+    instagramId = null
 )
