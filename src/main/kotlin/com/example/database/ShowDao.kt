@@ -1,5 +1,6 @@
 package com.example.database
 
+import com.example.database.entity.EpisodesDAO
 import com.example.model.*
 import com.example.remote.tmdb.model.TMDBEpisode
 import com.example.remote.tmdb.model.TMDBSeason
@@ -25,5 +26,12 @@ interface TMDBRepositoryInteraction {
         episodes: List<TMDBEpisode>,
         videoFile: VideoFile
     ): List<Episode>
+
+    suspend fun insertEpisode(
+        showId: ShowID,
+        seasonID: SeasonID,
+        episode: TMDBEpisode,
+        videoFile: VideoFile
+    ): EpisodesDAO
 }
 

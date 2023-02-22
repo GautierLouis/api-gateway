@@ -10,6 +10,7 @@ import com.example.plugins.SecretsEnv.TVDB_KEY
 import com.example.plugins.SecretsEnv.TVDB_PIN
 import com.example.remote.tmdb.TMDBService
 import com.example.remote.tvdb.TVDBService
+import com.example.sync.GetEpisodeUseCase
 import com.example.sync.GetSeasonUseCase
 import com.example.sync.SyncUseCase
 import com.example.usecases.GetCompleteShowUseCase
@@ -49,9 +50,10 @@ fun Application.configureKoin() {
             }
 
 
-            single { SyncUseCase(get(), get(), get(), get()) }
+            single { SyncUseCase(get(), get(), get(), get(), get()) }
             single { SearchShowUseCase(get()) }
             single { GetSeasonUseCase(get(), get()) }
+            single { GetEpisodeUseCase(get(), get()) }
             single { GetCompleteShowUseCase(get(), get(), get()) }
             single { GetEpisodesBatchUseCase(get()) }
         })

@@ -102,7 +102,6 @@ class TMDBRepository : TMDBRepositoryInteraction {
                 else null
 
             this[EpisodesEntity.number] = it.episodeNumber
-            this[EpisodesEntity.path] = videoFile.file.path
             this[EpisodesEntity.airDate] = it.airDate
             this[EpisodesEntity.name] = it.name
             this[EpisodesEntity.overview] = it.overview
@@ -115,5 +114,28 @@ class TMDBRepository : TMDBRepositoryInteraction {
             this[EpisodesEntity.show] = showId
             this[EpisodesEntity.path] = filePath
         }.map { EpisodesDAO.findById(it[EpisodesEntity.id])!!.toModel() }
+    }
+
+    override suspend fun insertEpisode(
+        showId: ShowID,
+        seasonID: SeasonID,
+        episode: TMDBEpisode,
+        videoFile: VideoFile
+    ): EpisodesDAO = query {
+        EpisodesDAO.new {
+            number = episode.episodeNumber
+            path = videoFile.file.path
+            airDate = episode.airDate
+            name = episode.name
+            overview = episode.overview
+            productionCode = episode.productionCode
+            runtime = episode.runtime
+            this.seasonNumber = episode.seasonNumber
+            stillPath = episode.stillPath ?: "" // TODO
+            order = episode.order ?: -1 //TODO
+            season = SeasonsDAO.findById(seasonID)!!
+            show = ShowDAO.findById(showId)!!
+            path = videoFile.file.absolutePath
+        }
     }
 }
