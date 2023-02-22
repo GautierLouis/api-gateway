@@ -22,7 +22,7 @@ class FileWatcher(
     private val syncUseCase: SyncUseCase
 ) : CoroutineScope {
 
-    private val dir = File("/Users/louisgautier/Desktop/TEst") // TODO Must be configurable
+    private val dir = File("/Users/louisgautier/Desktop/test/watcher") // TODO Must be configurable
     private val watchChannel = dir.asWatchChannel(KWatchChannel.Mode.Recursive)
     private val patternMatcher = PatternMatcher()
 

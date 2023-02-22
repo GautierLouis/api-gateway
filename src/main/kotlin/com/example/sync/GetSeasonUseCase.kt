@@ -13,7 +13,7 @@ class GetSeasonUseCase(
     suspend fun execute(showId: ShowID, id: TMDBShowId, videoFile: VideoFile) {
         service.getSeason(id, videoFile.seasonNumber).onSuccess {
             val newSeason = repository.batchInsertSeasons(showId, listOf(it))
-            repository.batchInsertEpisodes(showId, newSeason, it.episodes, videoFile)
+            repository.batchInsertEpisodes(showId, newSeason, it.episodes!!, videoFile)
         }
     }
 }

@@ -6,6 +6,7 @@ import com.example.remote.tmdb.model.TMDBEpisode
 import com.example.remote.tmdb.model.TMDBSeason
 import com.example.remote.tmdb.model.TMDBShow
 import com.example.remote.tmdb.model.TMDBShowExternalIds
+import com.example.utils.mockLocalDate
 import kotlinx.datetime.LocalDate
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
@@ -93,20 +94,20 @@ class TMDBRepository : TMDBRepositoryInteraction {
         seasons: List<Season>,
         episodes: List<TMDBEpisode>,
         videoFile: VideoFile
-    ) = query {
+    ): List<Episode> = query {
         EpisodesEntity.batchInsert(episodes, shouldReturnGeneratedValues = true) {
-            val seasonId = seasons.first { s -> s.number == it.seasonNumber }.id
+            val seasonId = seasons.first { s -> s.number == it.seasonNumber }.id // TODO
 
             val filePath =
                 if (videoFile.match(it.seasonNumber, it.episodeNumber)) videoFile.file.absolutePath
                 else null
 
             this[EpisodesEntity.number] = it.episodeNumber
-            this[EpisodesEntity.airDate] = it.airDate
+            this[EpisodesEntity.airDate] = it.airDate ?: mockLocalDate
             this[EpisodesEntity.name] = it.name
             this[EpisodesEntity.overview] = it.overview
             this[EpisodesEntity.productionCode] = it.productionCode
-            this[EpisodesEntity.runtime] = it.runtime
+            this[EpisodesEntity.runtime] = it.runtime ?: 0
             this[EpisodesEntity.seasonNumber] = it.seasonNumber
             this[EpisodesEntity.stillPath] = it.stillPath ?: "" // TODO
             this[EpisodesEntity.order] = it.order ?: -1 //TODO
@@ -125,11 +126,11 @@ class TMDBRepository : TMDBRepositoryInteraction {
         EpisodesDAO.new {
             number = episode.episodeNumber
             path = videoFile.file.path
-            airDate = episode.airDate
+            airDate = episode.airDate ?: mockLocalDate
             name = episode.name
             overview = episode.overview
             productionCode = episode.productionCode
-            runtime = episode.runtime
+            runtime = episode.runtime ?: 0
             this.seasonNumber = episode.seasonNumber
             stillPath = episode.stillPath ?: "" // TODO
             order = episode.order ?: -1 //TODO

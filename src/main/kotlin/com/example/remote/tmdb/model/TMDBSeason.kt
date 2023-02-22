@@ -10,7 +10,7 @@ data class TMDBSeason(
     @SerialName("air_date")
     val airDate: LocalDate?,
     @SerialName("episode_count")
-    val episodeCount: Long,
+    val episodeCount: Long?,
     @SerialName("id")
     val id: TMDBSeasonId,
     @SerialName("name")
@@ -22,5 +22,5 @@ data class TMDBSeason(
     @SerialName("season_number")
     val seasonNumber: Int,
     @SerialName("episodes")
-    val episodes: List<TMDBEpisode>
+    val episodes: List<TMDBEpisode>?
 )

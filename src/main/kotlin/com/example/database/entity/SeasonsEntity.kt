@@ -12,7 +12,6 @@ object SeasonsEntity : LongIdTable("seasons") {
     val airDate = date("air_date")
     val overview = text("overview")
     val show = reference("ref_show", ShowEntity)
-    val episodes = reference("ref_episodes", EpisodesEntity).nullable()
 }
 
 class SeasonsDAO(id: EntityID<Long>) : Entity<Long>(id) {

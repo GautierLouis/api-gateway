@@ -12,7 +12,7 @@ class GetEpisodesBatchUseCase(
     suspend fun execute(id: TMDBShowId, seasons: List<TMDBSeason>): Result<List<TMDBEpisode>> {
         return executeAlone(id, seasons)
             .map { list ->
-                list.toList().map { it.episodes }.flatten()
+                list.toList().map { it.episodes!! }.flatten()
             }
     }
 
@@ -24,6 +24,7 @@ class GetEpisodesBatchUseCase(
             val result = service.getSeason(id, seasons[index].seasonNumber)
             fetchSeason.add(result.getOrThrow())
             val isFinale = index.inc() == seasons.size
+            index += 1
             if (isFinale) {
                 Result.success(fetchSeason)
             } else {

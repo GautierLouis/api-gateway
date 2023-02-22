@@ -25,7 +25,7 @@ class GetCompleteShowUseCase(
             //TODO Try to make this call only if group exist
             val episodeGroup = service.getEpisodeGroupId(id).getOrThrow()
 
-            val remoteEpisodes = getEpisodes(episodeGroup, remoteShow).getOrThrow()
+            val remoteEpisodes = getEpisodes(episodeGroup, remoteShow).getOrThrow().filter { it.seasonNumber > 0 }
 
             repository.insertShow(remoteShow, externalIds, videoFile.showName)
                 .onSuccess { entity ->
