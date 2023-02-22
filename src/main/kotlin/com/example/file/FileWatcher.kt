@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import java.io.File
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
@@ -16,13 +17,14 @@ import java.nio.file.Path
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import kotlin.coroutines.CoroutineContext
+import kotlin.streams.toList
 
 class FileWatcher(
     override val coroutineContext: CoroutineContext,
     private val syncUseCase: SyncUseCase
 ) : CoroutineScope {
 
-    private val dir = File("/Users/louisgautier/Desktop/test/watcher") // TODO Must be configurable
+    private val dir = File("/volume1/TV Show") // TODO Must be configurable
     private val watchChannel = dir.asWatchChannel(KWatchChannel.Mode.Recursive)
     private val patternMatcher = PatternMatcher()
 
@@ -54,11 +56,21 @@ class FileWatcher(
         }
     }
 
+    fun scanDebug(): List<VideoFileExport> {
+        return Files.walk(dir.toPath()).filter { it.toFile().isVideoFile() }
+            .map { patternMatcher.clean(it.toFile()) }
+            .map { VideoFileExport(it.file.absolutePath, it.showName, it.seasonNumber, it.episodeNumber) }
+            .toList()
+    }
+
     private suspend fun syncFile(file: File) {
         val videoFile = patternMatcher.clean(file)
         syncUseCase.execute(videoFile)
     }
 }
+
+@Serializable
+data class VideoFileExport(val path: String, val cleanName: String, val seasonNumber: Int, val episodeNumber: Int)
 
 
 

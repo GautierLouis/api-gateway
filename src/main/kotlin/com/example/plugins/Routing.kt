@@ -21,8 +21,10 @@ fun Application.configureRouting() {
 
     routing {
 
+        get("/") { }
         get("/scan") {
-            watcher.scan()
+            val export = watcher.scanDebug()
+            call.respond(export)
         }
 
         get("/file") {
