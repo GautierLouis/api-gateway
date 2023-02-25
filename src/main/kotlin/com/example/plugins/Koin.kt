@@ -12,12 +12,7 @@ import com.example.plugins.SecretsEnv.TVDB_PIN
 import com.example.remote.ClientEngine
 import com.example.remote.tmdb.TMDBService
 import com.example.remote.tvdb.TVDBService
-import com.example.sync.GetEpisodeUseCase
-import com.example.sync.GetSeasonUseCase
-import com.example.sync.SyncUseCase
-import com.example.usecases.GetCompleteShowUseCase
-import com.example.usecases.GetEpisodesBatchUseCase
-import com.example.usecases.SearchShowUseCase
+import com.example.usecases.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import org.koin.core.qualifier.named
@@ -53,12 +48,24 @@ fun Application.configureKoin() {
                 )
             }
 
-            single { SyncUseCase(get(), get(), get(), get(), get()) }
+            single { SyncUseCase(get(), get(), get(), get()) }
+
             single { SearchShowUseCase(get()) }
-            single { GetSeasonUseCase(get(), get()) }
-            single { GetEpisodeUseCase(get(), get()) }
-            single { GetCompleteShowUseCase(get(), get(), get()) }
+
+            single { SyncCompleteShow(get(), get(), get()) }
+            single { GetCompleteShowUseCase(get(), get()) }
+            single { SaveCompleteShowUseCase(get()) }
+
+            single { SyncSeasonUseCase(get(), get()) }
+            single { GetSeasonUseCase(get()) }
+            single { SaveSeasonUseCase(get()) }
+
+            single { SyncEpisodeUseCase(get(), get()) }
+            single { GetEpisodeUseCase(get()) }
+            single { SaveEpisodeUseCase(get()) }
+
             single { GetEpisodesBatchUseCase(get()) }
+
         })
     }
 }

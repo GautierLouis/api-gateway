@@ -5,6 +5,7 @@ import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.kotlin.datetime.date
+import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
 object ShowEntity : LongIdTable("show") {
     // Data from API
@@ -20,11 +21,11 @@ object ShowEntity : LongIdTable("show") {
     val overview = text("overview")
     val numberOfSeasons = integer("number_of_seasons")
     val numberOfEpisodes = integer("number_of_episodes")
-
-    val externalIds = reference("ref_external_id", ShowExternalIdsEntity).nullable()
+    val externalIds = reference("ref_external_id", ShowExternalIdsEntity)
 
     // Local info
     val findBy = varchar128("find_by")
+    val lastSyncDate = datetime("last_sync")
 }
 
 class ShowDAO(id: EntityID<Long>) : Entity<Long>(id) {
@@ -43,8 +44,9 @@ class ShowDAO(id: EntityID<Long>) : Entity<Long>(id) {
     var numberOfSeasons by ShowEntity.numberOfSeasons
     var numberOfEpisodes by ShowEntity.numberOfEpisodes
     var findBy by ShowEntity.findBy
+    var lastSyncDate by ShowEntity.lastSyncDate
 
-    var externalsIds by ShowExternalIdsDAO optionalReferencedOn ShowEntity.externalIds
+    var externalsIds by ShowExternalIdsDAO referencedOn ShowEntity.externalIds
     val seasons by SeasonsDAO referrersOn SeasonsEntity.show
     val episodes by EpisodesDAO referrersOn EpisodesEntity.show
 }

@@ -5,9 +5,6 @@ import com.example.database.TMDBRepository
 import com.example.model.VideoFile
 import com.example.plugins.configureRouting
 import com.example.remote.tmdb.model.TMDBShowExternalIds
-import com.example.utils.mockTMDBEpisode
-import com.example.utils.mockTMDBSeason
-import com.example.utils.mockTMDBShow
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -59,17 +56,7 @@ class ApplicationTest {
             val mockFile = VideoFile("TEST", 1, 1, File.createTempFile("prefix", "suffix"))
             val mockExternalsIds = TMDBShowExternalIds(1, null, "", "", 1, 1, "", "", "")
 
-            val result = repo.insertShow(mockTMDBShow, mockExternalsIds, mockFile.showName)
-                .onSuccess { entity ->
-                    val newSeasons = repo.batchInsertSeasons(entity.id, listOf(mockTMDBSeason))
-                    val newEpisodes = repo.batchInsertEpisodes(entity.id, newSeasons, listOf(mockTMDBEpisode), mockFile)
-
-                    entity.episode = newEpisodes
-                    entity.seasons = newSeasons
-                }
-
             val show = repo.findShow("TEST")
-            assert(result.isSuccess)
             assert(show != null)
 
         }

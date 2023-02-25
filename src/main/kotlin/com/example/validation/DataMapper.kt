@@ -1,4 +1,4 @@
-package com.example.sync
+package com.example.validation
 
 import com.example.remote.tmdb.model.TMDBShow
 import kotlinx.datetime.LocalTime

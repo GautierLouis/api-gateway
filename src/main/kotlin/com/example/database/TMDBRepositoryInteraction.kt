@@ -1,37 +1,33 @@
 package com.example.database
 
-import com.example.database.entity.EpisodesDAO
 import com.example.model.*
 import com.example.remote.tmdb.model.TMDBEpisode
 import com.example.remote.tmdb.model.TMDBSeason
 import com.example.remote.tmdb.model.TMDBShow
-import com.example.remote.tmdb.model.TMDBShowExternalIds
 
 interface TMDBRepositoryInteraction {
     suspend fun findShow(cleanName: String): Show?
     suspend fun findSeason(id: ShowID, seasonNumber: Int): Season?
     suspend fun findEpisode(seasonID: SeasonID, episodeNumber: Int): Episode?
+    suspend fun findEpisodes(showId: ShowID, seasonNumber: Int, episodeNumber: Int): Episode?
 
-    suspend fun insertShow(
-        tmdbShow: TMDBShow,
-        externalId: TMDBShowExternalIds,
-        cleanName: String,
-    ): Result<Show>
 
-    suspend fun batchInsertSeasons(showId: ShowID, season: List<TMDBSeason>): List<Season>
+    suspend fun insertCompleteShow(tmdbShow: TMDBShow, cleanName: String): Result<Show>
+    suspend fun updateEpisodePath(episodeID: EpisodeID, filePath: String)
 
-    suspend fun batchInsertEpisodes(
+    suspend fun insertSeason(showId: ShowID, tmdbSeason: TMDBSeason): Result<Season>
+    suspend fun insertEpisodes(
         showId: ShowID,
-        seasons: List<Season>,
-        episodes: List<TMDBEpisode>,
-        videoFile: VideoFile
-    ): List<Episode>
+        seasonID: SeasonID,
+        tmdbEpisodes: List<TMDBEpisode>
+    ): Result<List<Episode>>
 
     suspend fun insertEpisode(
         showId: ShowID,
         seasonID: SeasonID,
         episode: TMDBEpisode,
-        videoFile: VideoFile
-    ): EpisodesDAO
+        filePath: String
+    ): Result<Episode>
+
 }
 

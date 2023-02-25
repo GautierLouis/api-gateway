@@ -22,9 +22,8 @@ data class Show(
     val averageRuntime: Double,
     val overview: String,
     val numberOfSeasons: Int,
-    val numberOfEpisodes: Int
-) {
-    var externalId: ShowExternalId? = null
-    var seasons: List<Season>? = null
-    var episode: List<Episode>? = null
-}
+    val numberOfEpisodes: Int,
+    val externalId: ShowExternalId,
+    val seasons: List<Season>,
+    val episode: List<Episode>,
+)

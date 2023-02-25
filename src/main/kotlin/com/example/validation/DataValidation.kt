@@ -1,4 +1,4 @@
-package com.example.sync
+package com.example.validation
 
 enum class DataValidationValue {
     NOT_EMPTY_STRING,

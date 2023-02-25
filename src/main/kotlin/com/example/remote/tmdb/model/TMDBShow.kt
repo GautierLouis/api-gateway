@@ -1,10 +1,10 @@
 package com.example.remote.tmdb.model
 
 import com.example.model.TMDBShowId
-import com.example.sync.DataValidation
-import com.example.sync.DataValidationValue
-import com.example.sync.Priority
-import com.example.sync.Type.*
+import com.example.validation.DataValidation
+import com.example.validation.DataValidationValue
+import com.example.validation.Priority
+import com.example.validation.Type.*
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -81,7 +81,9 @@ data class TMDBShow(
     @SerialName("vote_average")
     val voteAverage: Double,
     @SerialName("vote_count")
-    val voteCount: Long
+    val voteCount: Long,
+
+    val externalIds: TMDBShowExternalIds?
 ) {
     val realSeasons = seasons.filter { it.seasonNumber > 0 }
 }

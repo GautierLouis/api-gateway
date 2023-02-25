@@ -20,6 +20,9 @@ fun ShowDAO.toModel() = Show(
     overview,
     numberOfSeasons,
     numberOfEpisodes,
+    externalsIds.toModel(),
+    seasons.map { it.toModel() },
+    episodes.map { it.toModel() }
 )
 
 fun SeasonsDAO.toModel() = Season(
@@ -27,12 +30,12 @@ fun SeasonsDAO.toModel() = Season(
     number,
     poster,
     airDate,
-    overview
+    overview,
+    episodes.map { it.toModel() }
 )
 
 fun ShowExternalIdsDAO.toModel() = ShowExternalId(
     id.value,
-    show.id.value,
     tmdbId,
     imdbId,
     tvdbId,

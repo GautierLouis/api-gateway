@@ -6,7 +6,7 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.LongIdTable
 
 object ShowExternalIdsEntity : LongIdTable("show_external_id") {
-    val show = reference("show", ShowEntity).uniqueIndex()
+    val show = reference("show", ShowEntity).uniqueIndex().nullable()
     val tmdbId = long("tmdb_id").uniqueIndex().nullable()
     val imdbId = varchar128("imdb_id").nullable()
     val tvdbId = integer("tvdb_id").nullable()
@@ -30,5 +30,5 @@ class ShowExternalIdsDAO(id: EntityID<Long>) : Entity<Long>(id) {
     var tvrageId by ShowExternalIdsEntity.tvrageId
     var facebookId by ShowExternalIdsEntity.facebookId
     var instagramId by ShowExternalIdsEntity.instagramId
-    var show by ShowDAO referencedOn ShowExternalIdsEntity.show
+    var show by ShowDAO optionalReferencedOn ShowExternalIdsEntity.show
 }

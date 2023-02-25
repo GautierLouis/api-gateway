@@ -1,6 +1,6 @@
 package com.example.file
 
-import com.example.sync.SyncUseCase
+import com.example.usecases.SyncUseCase
 import com.example.utils.isVideoFile
 import dev.vishna.watchservice.KWatchChannel
 import dev.vishna.watchservice.KWatchEvent
@@ -58,19 +58,40 @@ class FileWatcher(
 
     fun scanDebug(): List<VideoFileExport> {
         return Files.walk(dir.toPath()).filter { it.toFile().isVideoFile() }
-            .map { patternMatcher.clean(it.toFile()) }
-            .map { VideoFileExport(it.file.absolutePath, it.showName, it.seasonNumber, it.episodeNumber) }
             .toList()
+            .mapNotNull { patternMatcher.clean(it.toFile()) }
     }
 
     private suspend fun syncFile(file: File) {
-        val videoFile = patternMatcher.clean(file)
-        syncUseCase.execute(videoFile)
+        val cleanFile = patternMatcher.clean(file)
+        syncUseCase.execute(cleanFile)
     }
 }
 
 @Serializable
-data class VideoFileExport(val path: String, val cleanName: String, val seasonNumber: Int, val episodeNumber: Int)
+sealed class FileInfo {
+    data class Default(val seasonNumber: Int, val episodeNumber: Int) : FileInfo()
+    data class Anime(val episodeNumber: Int) : FileInfo()
+    object Other : FileInfo()
+}
+
+@Serializable
+data class VideoFileExport(
+    val path: String,
+    val originalName: String,
+    val cleanName: String,
+    val info: FileInfo,
+) {
+    val seasonNumber: Int? = when (info) {
+        is FileInfo.Default -> info.seasonNumber
+        else -> null
+    }
+    val episodeNumber: Int? = when (info) {
+        is FileInfo.Anime -> info.episodeNumber
+        is FileInfo.Default -> info.episodeNumber
+        FileInfo.Other -> null
+    }
+}
 
 
 
