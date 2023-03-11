@@ -15,58 +15,82 @@ import com.example.remote.tvdb.TVDBService
 import com.example.usecases.*
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.config.*
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
 
+fun envModule(conf: ApplicationConfig) = module {
+    single(named(TMDB_TOKEN)) { conf.property("ktor.secrets.tmdb_token").getString() }
+    single(named(TVDB_KEY)) { conf.property("ktor.secrets.tvdb_key").getString() }
+    single(named(TVDB_PIN)) { conf.property("ktor.secrets.tvdb_pin").getString() }
+}
+
+val engineModule = module {
+    // Must be keep out for test
+    single(named(TMDB_ENGINE)) { ClientEngine().init(Url("https://api.themoviedb.org/3")) }
+}
+
+val serviceModule = module {
+    // Network layer
+    single {
+        TMDBService(
+            get(named(TMDB_TOKEN))
+        )
+    }
+    single {
+        TVDBService(
+            get(),
+            get(named(TVDB_KEY)),
+            get(named(TVDB_PIN)),
+        )
+    }
+}
+
+val repositoryModule = module {
+    // Data layer
+    single { TokenRepository() } bind TokenDao::class
+    single { TMDBRepository() } bind TMDBRepositoryInteraction::class
+}
+
+val useCaseModules = module {
+    single { SyncUseCase(get(), get(), get(), get()) }
+
+    single { SearchShowUseCase(get()) }
+
+    single { SyncCompleteShow(get(), get(), get()) }
+    single { GetCompleteShowUseCase(get(), get()) }
+    single { SaveCompleteShowUseCase(get()) }
+
+    single { SyncSeasonUseCase(get(), get()) }
+    single { GetSeasonUseCase(get()) }
+    single { SaveSeasonUseCase(get()) }
+
+    single { SyncEpisodeUseCase(get(), get()) }
+    single { GetEpisodeUseCase(get()) }
+    single { SaveEpisodeUseCase(get()) }
+
+    single { GetEpisodesBatchUseCase(get()) }
+}
+
+val koinModules = listOf(
+    serviceModule,
+    repositoryModule,
+    useCaseModules,
+    module {
+        // Feature that doesn't fit
+        single { FileWatcher(get(), get()) }
+    }
+)
+
 fun Application.configureKoin() {
-    val conf = this.environment.config
     install(Koin) {
-        modules(module {
-            single(named(TMDB_TOKEN)) { conf.property("ktor.secrets.tmdb_token").getString() }
-            single(named(TVDB_KEY)) { conf.property("ktor.secrets.tvdb_key").getString() }
-            single(named(TVDB_PIN)) { conf.property("ktor.secrets.tvdb_pin").getString() }
-
-            single { TokenRepository() } bind TokenDao::class
-            single { TMDBRepository() } bind TMDBRepositoryInteraction::class
-
-            single { FileWatcher(get(), get()) }
-
-            single(named(TMDB_ENGINE)) { ClientEngine().init(Url("https://api.themoviedb.org/3")) }
-
-            single {
-                TMDBService(
-                    get(named(TMDB_TOKEN))
-                )
-            }
-            single {
-                TVDBService(
-                    get(),
-                    get(named(TVDB_KEY)),
-                    get(named(TVDB_PIN)),
-                )
-            }
-
-            single { SyncUseCase(get(), get(), get(), get()) }
-
-            single { SearchShowUseCase(get()) }
-
-            single { SyncCompleteShow(get(), get(), get()) }
-            single { GetCompleteShowUseCase(get(), get()) }
-            single { SaveCompleteShowUseCase(get()) }
-
-            single { SyncSeasonUseCase(get(), get()) }
-            single { GetSeasonUseCase(get()) }
-            single { SaveSeasonUseCase(get()) }
-
-            single { SyncEpisodeUseCase(get(), get()) }
-            single { GetEpisodeUseCase(get()) }
-            single { SaveEpisodeUseCase(get()) }
-
-            single { GetEpisodesBatchUseCase(get()) }
-
-        })
+        module {
+            envModule(this@configureKoin.environment.config)
+            engineModule
+        }
+        modules(koinModules)
     }
 }
 

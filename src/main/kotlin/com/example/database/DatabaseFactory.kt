@@ -9,17 +9,20 @@ import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.io.File
 import java.sql.Connection
 
 
 suspend fun <T> query(block: suspend () -> T): T =
     newSuspendedTransaction(Dispatchers.IO) { block() }
 
+val databaseFile = File("/Users/louisgautier/Desktop/test/database.db")
+
 object DatabaseFactory {
 
     fun initInFile(): Database {
 
-        val url = "jdbc:sqlite:/Users/louisgautier/Desktop/test/database.db"
+        val url = "jdbc:sqlite:${databaseFile.absolutePath}"
         return init(url)
     }
 
@@ -43,6 +46,8 @@ object DatabaseFactory {
                 SeasonsEntity,
                 EpisodesEntity
             )
+
+
         }
         return database
     }

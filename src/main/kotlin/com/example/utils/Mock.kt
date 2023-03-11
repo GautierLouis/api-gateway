@@ -40,6 +40,17 @@ val mockTMDBSeason = TMDBSeason(
     episodes = listOf(mockTMDBEpisode)
 )
 
+val mockExternalIds = TMDBShowExternalIds(
+    imdbId = null,
+    freebaseMid = null,
+    freebaseId = null,
+    tvdbId = null,
+    tvrageId = null,
+    wikidataId = null,
+    facebookId = null,
+    instagramId = null,
+    tmdbId = 0L
+)
 val mockTMDBShow = TMDBShow(
     backdropPath = "",
     createdBy = emptyList(),
@@ -85,16 +96,6 @@ val mockTMDBShow = TMDBShow(
     tagline = "",
     type = "",
     voteAverage = 0.0,
-    voteCount = 0L
-)
-val mockExternalIds = TMDBShowExternalIds(
-    mockTMDBShow.tmdbId,
-    imdbId = null,
-    freebaseMid = null,
-    freebaseId = null,
-    tvdbId = null,
-    tvrageId = null,
-    wikidataId = null,
-    facebookId = null,
-    instagramId = null
+    voteCount = 0L,
+    mockExternalIds
 )
